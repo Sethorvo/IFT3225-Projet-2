@@ -21,7 +21,7 @@ $(document).ready(function() {
                 "processing": true,
                 "serverSide": false,
                 "ajax": {
-                    "url": "http://localhost/fetch_facts.php",
+                    "url": "http://localhost/index.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
                     "dataSrc": ""
                 },
