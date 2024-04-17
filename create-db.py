@@ -6,7 +6,7 @@ import json
 # Connexion à MySQL
 def connect_to_mysql(host, user, password):
     try:
-        #Pour que le script fonctionne sur un ordinateur DIRO le nom_usager doit etre ajouter au nom de la BD
+        #Pour que le script fonctionne sur un ordinateur DIRO le nom_usager + "_" doit etre ajouter au debut du nom de BD
         connection = mysql.connector.connect(host=host, user=user, password=password, database='conceptnetdb')
         connection.reconnect()
         if connection.is_connected():
@@ -77,8 +77,8 @@ def main():
     password = ""  # Votre mot de passe MySQL sur la machine DIRO
 
     #Remplacer le nom_usager ici aussi
-    db_creation_query = "CREATE DATABASE IF NOT EXISTS nom_usager_ConceptNetDB"
-    use_db_query = "USE nom_usager_ConceptNetDB"
+    db_creation_query = "CREATE DATABASE IF NOT EXISTS conceptnetdb"
+    use_db_query = "USE conceptnetdb"
 
     concepts_table_query = """
         CREATE TABLE IF NOT EXISTS Concepts (
