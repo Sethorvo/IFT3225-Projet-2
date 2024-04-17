@@ -2,10 +2,18 @@ $(document).ready(function() {
     const app = Sammy('#main', function () {
         this.use('Template');
 
-        this.get('#/help', function() {
+        this.get('#/help', function(context) {
+            const homeContent = $('#home-template').html();
+            const relationContent = $('#relation-template').html();
+            const conceptContent = $('#concept-template').html();
+
+            context.$element().html(homeContent);
+            $('#help').append(relationContent);
+            $('#help').append(conceptContent);
+
         });
 
-        this.get('#/dump/faits', function() {
+        this.get('#/dump/faits', function(context) {
             const template = $('#facts-template').html();
             $('#main').html(template);
 
