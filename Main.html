@@ -23,7 +23,6 @@
             <table id="facts-table" class="table">
                 <thead>
                 <tr>
-                    <th>Fact ID</th>
                     <th>Start Concept</th>
                     <th>Relation Type</th>
                     <th>End Concept</th>
@@ -31,7 +30,6 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>{{fact_id}}</td>
                     <td>{{start_concept}}</td>
                     <td>{{relation_type}}</td>
                     <td>{{end_concept}}</td>
@@ -47,74 +45,86 @@
         </div>
         <div class="container" id="help">
             <div class="card">
+                <form id="game-who-form">
                 <h3>Sélection de Jeux</h3>
                 <h4>Jeu Qui suis-je ?</h4>
                 <div class="form-group row">
                     <label for="jeu-1-time" class="col-sm-5 col-form-label">Temps (s):</label>
                     <div class="col-sm-5">
-                        <input type="email" class="form-control" id="jeu-1-time" placeholder="60">
+                        <input type="text" class="form-control" id="jeu-1-time" placeholder="60">
                     </div>
                     <label for="jeu-1-hint" class="col-sm-5 col-form-label">Intervalle indices (s):</label>
                     <div class="col-sm-5">
-                        <input type="email" class="form-control" id="jeu-1-hint" placeholder="10">
+                        <input type="text" class="form-control" id="jeu-1-hint" placeholder="10">
                     </div>
+                    <button type="submit" class="btn btn-success btn-lg" href="#">Jouer</button>
                 </div>
-                <a class="btn btn-success btn-lg play-button" href="#" role="button">Jouer</a>
+                </form>
 
+                <form id="game-rel-form">
                 <h4>Jeu Related</h4>
                 <div class="form-group row">
                     <label for="jeu-2-time" class="col-sm-5 col-form-label">Temps (s):</label>
                     <div class="col-sm-5">
-                        <input type="email" class="form-control" id="jeu-2-time" placeholder="60">
+                        <input type="text" class="form-control" id="jeu-2-time" placeholder="60">
                     </div>
+                    <button type="submit" class="btn btn-success btn-lg" href="#">Jouer</button>
                 </div>
-                <a class="btn btn-success btn-lg play-button" href="#" role="button">Jouer</a>
+                </form>
             </div>
         </div>
     </script>
     <script id="relation-template" type="text/template">
         <div class="card">
+            <form id="rel-form">
             <h3>Consultation Relation</h3>
             <h4>Relation from</h4>
             <div class="form-group row">
                 <label for="rel-conc" class="col-sm-3 col-form-label">Concept:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" id="rel-conc" placeholder="Window">
+                    <input type="text" class="form-control" id="rel-conc" placeholder="Window">
                 </div>
                 <label for="rel-val" class="col-sm-3 col-form-label">Relation:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" id="rel-val" placeholder="RelatedTo">
+                    <input type="text" class="form-control" id="rel-val" placeholder="RelatedTo">
                 </div>
                 <label for="rel-lang" class="col-sm-3 col-form-label">Langue:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" id="rel-lang" placeholder="EN">
+                    <input type="text" class="form-control" id="rel-lang" placeholder="EN">
                 </div>
+                <button type="submit" class="btn btn-success btn-lg" href="#">Rechercher</button>
             </div>
-            <a class="btn btn-success btn-lg play-button" href="#" role="button">Rechercher</a>
 
+            </form>
+
+            <form id="rel-simple-form">
+                <h4>Relation simple</h4>
             <div class="form-group row">
                 <label for="rel-simple" class="col-sm-3 col-form-label">Relation:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" id="rel-simple" placeholder="RelatedTo">
+                    <input type="text" class="form-control" id="rel-simple" placeholder="RelatedTo">
                 </div>
+                <button type="submit" class="btn btn-success btn-lg" href="#">Rechercher</button>
             </div>
-            <a class="btn btn-success btn-lg play-button" href="#" role="button">Rechercher</a>
+            </form>
         </div>
     </script>
     <script id="concept-template" type="text/template">
         <div class="card">
+            <form id="conc-form">
             <h3>Consultation Concept</h3>
             <div class="form-group row">
                 <label for="conc-lang" class="col-sm-3 col-form-label">Langue:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" id="conc-lang" placeholder="FR">
+                    <input type="text" class="form-control" id="conc-lang" placeholder="FR">
                 </div>
                 <label for="conc-val" class="col-sm-3 col-form-label">Concept:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" id="conc-val" placeholder="Dentiste">
+                    <input type="text" class="form-control" id="conc-val" placeholder="Dentiste">
                 </div>
+                <button type="submit" class="btn btn-success btn-lg">Rechercher</button>
             </div>
-            <a class="btn btn-success btn-lg play-button" href="#" role="button">Rechercher</a>
+            </form>
         </div>
     </script>
 

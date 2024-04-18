@@ -10,14 +10,6 @@ header {
 a {
     padding: 10px;
 }
-.button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-}
 .container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -48,8 +40,9 @@ a {
     padding: 1em;
     font-size: 20px;
 }
-.play-button{
-    margin: 1em 3em;
+.row button{
+    margin: 1em 2em;
+    width: 80%;
 }
 input[type="text"], input[type="submit"] {
     width: 100%;
