@@ -1,0 +1,4 @@
+beautifulsoup4
+sqlparse
+requests
+mysql-connector-python
