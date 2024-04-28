@@ -1,6 +1,9 @@
 import json
 import requests
 from bs4 import BeautifulSoup
+from pathlib import Path
+
+outputDirectory = Path(__file__).absolute().parent.parent
 
 # Paramètres initiaux
 BASE_URL = "http://api.conceptnet.io/query"
@@ -55,7 +58,8 @@ def generate_html_table(facts):
     return soup.prettify()
 
 def save_data(facts):
-    with open("facts_data.json", "w") as f:
+    JSONOutputPath = outputDirectory / "facts_data.json"
+    with open(JSONOutputPath, "w") as f:
         json.dump(facts, f)
 
 # Collecter les faits pour chaque langue en respectant les contraintes
@@ -71,8 +75,8 @@ for lang in LANGUAGES:
 
 # Générer et écrire la table HTML dans un fichier
 html_table = generate_html_table(all_facts)
-file_name = "conceptnet_facts.html"
-with open(file_name, "w", encoding="utf-8") as file:
+HTMLOutputPath = outputDirectory / "conceptnet_facts.html"
+with open(HTMLOutputPath, "w", encoding="utf-8") as file:
     file.write(html_table)
 save_data(all_facts)
 

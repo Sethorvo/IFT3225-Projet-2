@@ -3,6 +3,9 @@ from mysql.connector import Error
 import json
 import sqlparse
 import sys
+from pathlib import Path
+
+mainDirectory = Path(__file__).absolute().parent.parent
 
 
 # Connexion à MySQL
@@ -18,8 +21,8 @@ def connectToMySQL(host, user, password):
         return None
 
 
-def loadData(filename):
-    with open(filename, "r") as f:
+def loadData():
+    with open(mainDirectory/"facts_data.json", "r") as f:
         return json.load(f)
 
 
@@ -112,11 +115,11 @@ def main():
 
     if connection:
 
-        sqlSetupFile = open("setup/init.sql", "r")
+        sqlSetupFile = open(mainDirectory/"setup"/"init.sql", "r")
 
         runSetupQueries(connection, sqlSetupFile.read())
 
-        facts = loadData("facts_data.json")
+        facts = loadData()
         insertData(connection, facts)
 
         sqlSetupFile.close()
