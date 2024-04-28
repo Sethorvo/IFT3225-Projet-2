@@ -18,13 +18,11 @@ $(document).ready(function() {
             const template = $('#facts-template').html();
             $('#main').html(template);
 
-            let url = new URL("./getConcepts.php", $(location).attr("origin") + $(location).attr("pathname"));
-
             $('#facts-table').DataTable({
                 "processing": true,
                 "serverSide": false,
                 "ajax": {
-                    "url": url.href, //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
+                    "url": "getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
                     "dataSrc": ""
                 },
