@@ -1,22 +1,59 @@
 
+var PartLoader = function(app, elementSelector, socketList) {
+
+    storedParts = [];
+
+    this.helpers({
+        loadPart: function(partSelector, socketName) {
+
+            part = $("#".concat(partSelector)).detach();
+
+            storedParts.push(part.clone());
+
+            part.appendTo("#socket-".concat(socketName));
+
+        }
+
+
+    });
+
+    this.bind("event-context-before", function() {
+        
+        $.each(socketList, function(index, socketName) {
+
+            $("#socket-".concat(socketName)).empty();
+
+        });
+
+        $.each(storedParts, function(index, part) {
+
+            $("#storage").append(part);
+
+        });
+
+        storedParts = [];
+
+    });
+}
+
 $(document).ready(function() {
+
     const app = Sammy('#main', function () {
+
         this.use('Template');
+        this.use(PartLoader, "#main", ["header", "main", "footer"]);
 
         this.get('#/help', function(context) {
-            const homeContent = $('#home-template').html();
-            const relationContent = $('#relation-template').html();
-            const conceptContent = $('#concept-template').html();
 
-            $('#main').html(homeContent);
-            $('#help').append(relationContent);
-            $('#help').append(conceptContent);
+            this.loadPart("mainHeader", "header");
+            this.loadPart("helpRoute", "main")
 
         });
 
         this.get('#/dump/faits', function(context) {
-            const template = $('#facts-template').html();
-            $('#main').html(template);
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("facts-container", "main");
 
             $('#facts-table').DataTable({
                 "processing": true,
@@ -35,10 +72,13 @@ $(document).ready(function() {
         });
 
         this.get('#/concept/:langue/:concept', function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("facts-container", "main");
+
             const langue = this.params.langue;
             const concept = this.params.concept;
-            const template = $('#facts-template').html();
-            $('#main').html(template);
+
             $('#facts-table').DataTable({
                 "processing": true,
                 "serverSide": false,
@@ -56,11 +96,14 @@ $(document).ready(function() {
             });
         });
         this.get('#/relation/:relation/from/:langue/:concept', function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("facts-container", "main");
+
             const relation = this.params.relation;
             const langue = this.params.langue;
             const concept = this.params.concept;
-            const template = $('#facts-template').html();
-            $('#main').html(template);
+
             $('#facts-table').DataTable({
                 "processing": true,
                 "serverSide": false,
@@ -78,9 +121,12 @@ $(document).ready(function() {
             });
         });
         this.get('#/relation/:relation', function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("facts-container", "main");
+
             const relation = this.params.relation;
-            const template = $('#facts-template').html();
-            $('#main').html(template);
+
             $('#facts-table').DataTable({
                 "processing": true,
                 "serverSide": false,
@@ -99,6 +145,11 @@ $(document).ready(function() {
         });
     });
     app.run('#/help');
+    $("main").submit(function(event) {
+        event.preventDefault();
+
+    });
+
     $('#conc-form').submit(function(event) {
         event.preventDefault();
         const langue = $('#conc-lang').val().trim().toLowerCase();

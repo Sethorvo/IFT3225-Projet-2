@@ -2,7 +2,7 @@ body {
     padding: 20px;
     background-color: #f4f4f4;
 }
-header {
+#mainHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
