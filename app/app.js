@@ -8,7 +8,7 @@ var PartLoader = function(app, elementSelector, socketList) {
 
             part = $("#".concat(partSelector)).detach();
 
-            storedParts.push(part.clone());
+            storedParts.push(part.clone(true, true));
 
             part.appendTo("#socket-".concat(socketName));
 
@@ -143,30 +143,32 @@ $(document).ready(function() {
                 ]
             });
         });
+
+        $('#rel-form').submit(function(event) {
+            event.preventDefault();
+            const langue = $('#rel-lang').val().trim().toLowerCase();
+            const concept = $('#rel-conc').val().trim().toLowerCase();
+            const relation = $('#rel-val').val().trim();
+            window.location.hash = '#/relation/' + encodeURIComponent(relation)
+                + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept);
+    
+            return false;
+        });
+
+        $('#conc-form').submit(function(event) {
+            event.preventDefault();
+            const langue = $('#conc-lang').val().trim().toLowerCase();
+            const concept = $('#conc-val').val().trim().toLowerCase();
+            window.location.hash = '#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept);
+        });
+    
+        $('#rel-simple-form').submit(function(event) {
+            event.preventDefault();
+            const relation = $('#rel-simple').val().trim();
+            window.location.hash = '#/relation/' + encodeURIComponent(relation);
+        });
     });
+
     app.run('#/help');
-    $("main").submit(function(event) {
-        event.preventDefault();
 
-    });
-
-    $('#conc-form').submit(function(event) {
-        event.preventDefault();
-        const langue = $('#conc-lang').val().trim().toLowerCase();
-        const concept = $('#conc-val').val().trim().toLowerCase();
-        window.location.hash = '#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept);
-    });
-    $('#rel-form').submit(function(event) {
-        event.preventDefault();
-        const langue = $('#rel-lang').val().trim().toLowerCase();
-        const concept = $('#rel-conc').val().trim().toLowerCase();
-        const relation = $('#rel-val').val().trim();
-        window.location.hash = '#/relation/' + encodeURIComponent(relation)
-            + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept);
-    });
-    $('#rel-simple-form').submit(function(event) {
-        event.preventDefault();
-        const relation = $('#rel-simple').val().trim();
-        window.location.hash = '#/relation/' + encodeURIComponent(relation);
-    });
 });
