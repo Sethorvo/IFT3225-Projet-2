@@ -99,7 +99,7 @@ $(document).ready(function() {
                 "ajax": {
                     "url": "http://localhost/getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
-                    "dataSrc": "",
+                    "dataSrc": ""
                 },
                 "columns": [
                     { "data": "start_concept" },
@@ -124,9 +124,6 @@ $(document).ready(function() {
                 "ajax": {
                     "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept +"&end=/c/"+ langue +"&limit=50",
                     "type": "GET",
-                    "data": {
-                        lang: langue
-                    },
                     "dataSrc": "edges",
                     "dataFilter": function(data) {
                         const json = JSON.parse(data);
