@@ -99,7 +99,7 @@ $(document).ready(function() {
                 "ajax": {
                     "url": "http://localhost/getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
-                    "dataSrc": ""
+                    "dataSrc": "",
                 },
                 "columns": [
                     { "data": "start_concept" },
@@ -122,9 +122,22 @@ $(document).ready(function() {
                 "serverSide": false,
                 "destroy": true,
                 "ajax": {
-                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept + "&limit=1000",
+                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept +"&end=/c/"+ langue +"&limit=50",
                     "type": "GET",
-                    "dataSrc": "edges"
+                    "data": {
+                        lang: langue
+                    },
+                    "dataSrc": "edges",
+                    "dataFilter": function(data) {
+                        const json = JSON.parse(data);
+                        if (json && json.edges) { //verifie que les donnes et les edges sont la
+                            saveDataToDatabase(json.edges);
+                            return data;
+                        } else {
+                            console.error("No edges found in the data");
+                            return JSON.stringify([]);
+                        }
+                    }
                 },
                 "columns": [
                     { "data": "start.label" },
@@ -148,9 +161,19 @@ $(document).ready(function() {
                 "serverSide": false,
                 "destroy": true,
                 "ajax": {
-                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept + "&rel=/r/"+ relation+"&limit=1000",
+                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept +"&end=/c/"+ langue + "&rel=/r/"+ relation+"&limit=50",
                     "type": "GET",
-                    "dataSrc": "edges"
+                    "dataSrc": "edges",
+                    "dataFilter": function(data) {
+                        const json = JSON.parse(data);
+                        if (json && json.edges) {
+                            saveDataToDatabase(json.edges);
+                            return data;
+                        } else {
+                            console.error("No edges found in the data");
+                            return JSON.stringify([]);
+                        }
+                    }
                 },
                 "columns": [
                     { "data": "start.label" },
@@ -172,9 +195,19 @@ $(document).ready(function() {
                 "serverSide": false,
                 "destroy": true,
                 "ajax": {
-                    "url": `https://api.conceptnet.io/query?rel=/r/`+ relation + "&limit=1000",
+                    "url": `https://api.conceptnet.io/query?rel=/r/`+ relation + "&limit=50",
                     "type": "GET",
-                    "dataSrc": "edges"
+                    "dataSrc": "edges",
+                    "dataFilter": function(data) {
+                        const json = JSON.parse(data);
+                        if (json && json.edges) {
+                            saveDataToDatabase(json.edges);
+                            return data;
+                        } else {
+                            console.error("No edges found in the data");
+                            return JSON.stringify([]);
+                        }
+                    }
                 },
                 "columns": [
                     { "data": "start.label" },
@@ -328,5 +361,20 @@ $(document).ready(function() {
     });
 
     app.run('#/help');
+
+    function saveDataToDatabase(data) {
+        $.ajax({
+            url: 'http://localhost/db_feed.php',
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json; charset=utf-8',
+            success: function(response) {
+                console.log("Data saved successfully:", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error saving data:", error);
+            }
+        });
+    }
 
 });

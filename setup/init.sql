@@ -8,7 +8,7 @@ CREATE TABLE Concepts (
     concept_id INT AUTO_INCREMENT PRIMARY KEY,
     label VARCHAR(255) NOT NULL,
     language VARCHAR(2) NOT NULL,
-    UNIQUE (label, language)
+    UNIQUE (label)
 );
 
 CREATE TABLE Relations (
