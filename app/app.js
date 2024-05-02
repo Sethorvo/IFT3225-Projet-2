@@ -216,6 +216,31 @@ $(document).ready(function() {
             const relation = $('#rel-simple').val().trim();
             app.setLocation('#/relation/' + encodeURIComponent(relation));
         });
+
+        $('#login-form').submit(function(event) {
+            // Aide de https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            fetch('http://localhost/login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    alert('Login Successful!');
+                    this.reset();
+                } else {
+                    alert('Login Failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        });
     });
 
     app.run('#/help');
