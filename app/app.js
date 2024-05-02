@@ -162,11 +162,67 @@ $(document).ready(function() {
         this.get("#/jeux/quisuisje/:temps/:indice", function(context) {
 
             this.loadPart("mainHeader", "header");
-            this.loadPart("guess-who-board", "main")
+            this.loadPart("guess-who-board", "main");
+
+            var concept;
+            var language;
+            var interval;
+            var startTime = this.params.temps * 1000
+            var timeRemaining = startTime;
+            var hintTimeInterval = this.params.indice * 1000;
+            var nextAPIQuery
 
             $.get("getRandomConcept.php", function(data) {
-                console.log(data.label, data.language);
+                concept = data.label;
+                language = data.language;
+
+                // regex from https://stackoverflow.com/questions/441018/replacing-spaces-with-underscores-in-javascript
+                nextAPIQuery = "https://api.conceptnet.io/query?node=/c/" + language + "/" + concept.replace(/ /g, "_") + "&other=/c/" + language + "&limit=10";
             })
+
+            $("#guess-who-board-form").submit(function(event) {
+
+                const input = $("#guess-who-board-form > input").val();
+
+                if (input === concept) {
+                    console.log("gagné")
+                }
+                else {
+                    console.log("pas trouvé")
+                }
+
+                return false;
+
+            });
+
+            timerBarTag = $("#guess-who-board-timer > div > div")
+
+            interval = setInterval(() => {
+
+                if ((timeRemaining % 1000) === 0) {
+                    const timeBeforeNextHint = ((timeRemaining-1000)%hintTimeInterval)/1000 + 1
+                    $("#guess-who-board-hint").text(timeBeforeNextHint)
+                    
+                    if (timeBeforeNextHint === 10) {
+
+                        $.get("https://api.conceptnet.io/c/fr/ordinateur?offset=20&limit=100")
+                        "https://api.conceptnet.io/query?node=/c/en/geek&other=/c/en&limit"
+
+                    }
+                }
+
+                timeRemaining -= 10;
+
+                let percent = timeRemaining * 100 / startTime
+                timerBarTag.css("width", "calc(" + percent + "% - 4px)")
+
+                if (timeRemaining < 0) {
+
+                    clearInterval(interval);
+
+                }
+
+            }, 10);
 
         });
 

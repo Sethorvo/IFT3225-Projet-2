@@ -165,10 +165,13 @@
                 <h1>Jeu "Qui-suis-je"</h1>
                 <p>Record : <span></span></p>
             </div>
-            <p>Temps restant : <span></span>s</p>
-            <p>Nouvel indice dans : <span></span>s</p>
+            <div id="guess-who-board-timer">
+                <p>Temps restant</p>
+                <div class="timer"><div></div></div>
+            </div>
+            <p>Nouvel indice dans : <span id="guess-who-board-hint"></span>s</p>
             <form id="guess-who-board-form">
-                <input type="text" id="guess-who-board-textinput" placeholder="Réponse">
+                <input type="text" autocomplete="off" id="guess-who-board-textinput" placeholder="Réponse">
                 <button type="submit" class="btn btn-success btn-lg">Valider</button>
             </form>
 
