@@ -161,6 +161,9 @@ $(document).ready(function() {
 
         this.get("#/jeux/quisuisje/:temps/:indice", function(context) {
 
+            this.loadPart("mainHeader", "header");
+            this.loadPart("guess-who-board", "main")
+
             $.get("getRandomConcept.php", function(data) {
                 console.log(data.label, data.language);
             })
