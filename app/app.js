@@ -199,8 +199,8 @@ $(document).ready(function() {
             const langue = $('#rel-lang').val().trim().toLowerCase();
             const concept = $('#rel-conc').val().trim().toLowerCase();
             const relation = $('#rel-val').val().trim();
-            window.location.hash = '#/relation/' + encodeURIComponent(relation)
-                + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept);
+            app.setLocation('#/relation/' + encodeURIComponent(relation)
+                + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept));
     
         });
 
@@ -208,13 +208,13 @@ $(document).ready(function() {
             event.preventDefault();
             const langue = $('#conc-lang').val().trim().toLowerCase();
             const concept = $('#conc-val').val().trim().toLowerCase();
-            window.location.hash = '#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept);
+            app.setLocation('#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept));
         });
     
         $('#rel-simple-form').submit(function(event) {
             event.preventDefault();
             const relation = $('#rel-simple').val().trim();
-            window.location.hash = '#/relation/' + encodeURIComponent(relation);
+            app.setLocation('#/relation/' + encodeURIComponent(relation));
         });
     });
 
