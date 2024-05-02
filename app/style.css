@@ -55,3 +55,32 @@ input[type="submit"] {
     border: none;
     cursor: pointer;
 }
+
+/* "Guess who" game related */
+#guess-who-board, #guess-who-board > form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#guess-who-board-form {
+    width:20%;
+}
+
+#guess-who-board-form > div {
+    display:flex;
+    align-items: center;
+    column-gap: 20px;
+}
+
+#guess-who-board-textinput {
+    width:max-content;
+    margin:0;
+}
+#guess-who-board-form > div > label {
+    height:fit-content;
+}
+
+#guess-who-board-form p {
+    margin:0;
+}
