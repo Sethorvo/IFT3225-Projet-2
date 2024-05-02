@@ -6,11 +6,11 @@ var PartLoader = function(app, elementSelector, socketList) {
     this.helpers({
         loadPart: function(partSelector, socketName) {
 
-            part = $("#".concat(partSelector)).detach();
+            part = $("#" + partSelector).detach();
 
             storedParts.push(part.clone(true, true));
 
-            part.appendTo("#socket-".concat(socketName));
+            part.appendTo("#socket-" + socketName);
 
         }
 
@@ -21,7 +21,7 @@ var PartLoader = function(app, elementSelector, socketList) {
         
         $.each(socketList, function(index, socketName) {
 
-            $("#socket-".concat(socketName)).empty();
+            $("#socket-" + socketName).empty();
 
         });
 
@@ -39,6 +39,12 @@ var PartLoader = function(app, elementSelector, socketList) {
 $(document).ready(function() {
 
     const app = Sammy('#main', function () {
+
+        var app = this
+        var whoGameSettings = {
+            defaultTime: 60,
+            defaultHints: 10
+        }
 
         this.use('Template');
         this.use(PartLoader, "#main", ["header", "main", "footer"]);
@@ -95,6 +101,7 @@ $(document).ready(function() {
                 ]
             });
         });
+
         this.get('#/relation/:relation/from/:langue/:concept', function(context) {
 
             this.loadPart("mainHeader", "header");
@@ -120,6 +127,7 @@ $(document).ready(function() {
                 ]
             });
         });
+
         this.get('#/relation/:relation', function(context) {
 
             this.loadPart("mainHeader", "header");
@@ -144,6 +152,38 @@ $(document).ready(function() {
             });
         });
 
+        this.get("#/jeux/quisuisje/:temps/:indice", function(context) {
+
+            $.get("getRandomConcept.php", function(data) {
+                console.log(data.label, data.language);
+            })
+
+        });
+
+        this.get("#/jeux/quisuisje/:temps", function(context) {
+
+            this.redirect("#/jeux/quisuisje/" + this.params.temps + "/" + whoGameSettings.defaultHints);
+
+        });
+
+        this.get("#/jeux/quisuisje", function(context) {
+
+            this.redirect("#/jeux/quisuisje/" + whoGameSettings.defaultTime + "/" + whoGameSettings.defaultHints);
+
+        });
+
+        $("#game-who-form").submit(function(event) {
+
+            let time = $("#game-1-time").val();
+            time = time !== "" ? time : whoGameSettings.defaultTime;
+            let hints = $("#game-1-hint").val();
+            hints = hints !== "" ? hints : whoGameSettings.defaultHints;
+
+            app.setLocation("#/jeux/quisuisje/" + time + "/" + hints);
+
+            return false;
+        });
+
         $('#rel-form').submit(function(event) {
             event.preventDefault();
             const langue = $('#rel-lang').val().trim().toLowerCase();
@@ -152,7 +192,6 @@ $(document).ready(function() {
             window.location.hash = '#/relation/' + encodeURIComponent(relation)
                 + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept);
     
-            return false;
         });
 
         $('#conc-form').submit(function(event) {
