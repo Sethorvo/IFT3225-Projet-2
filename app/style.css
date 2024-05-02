@@ -30,7 +30,7 @@ a {
 .card h4{
     padding-top: 1em;
 }
-.welcome {
+#welcome {
     margin: auto;
     width: 50%;
     padding: 20px;

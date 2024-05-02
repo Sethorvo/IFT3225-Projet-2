@@ -45,6 +45,8 @@ $(document).ready(function() {
             defaultTime: 60,
             defaultHints: 10
         }
+        var loginButton = $("#login-button").clone(true);
+        var logoutButton = $("#logout-button").detach();
 
         this.use('Template');
         this.use(PartLoader, "#main", ["header", "main", "footer"]);
@@ -62,6 +64,29 @@ $(document).ready(function() {
             this.loadPart("login-container", "main")
 
         });
+
+        this.get('#/logout', function(context) {
+            fetch('http://localhost/logout.php', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    alert('Logout Successful!');
+                    this.redirect("#/help")
+                    $("#logout-button" ).remove();
+
+                } else {
+                    alert('Logout Failed: ');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        });
+
 
         this.get('#/dump/faits', function(context) {
 
@@ -181,7 +206,6 @@ $(document).ready(function() {
             this.redirect("#/jeux/quisuisje/" + whoGameSettings.defaultTime + "/" + whoGameSettings.defaultHints);
 
         });
-
         $("#game-who-form").submit(function(event) {
 
             let time = $("#game-1-time").val();
@@ -220,7 +244,7 @@ $(document).ready(function() {
         $('#login-form').submit(function(event) {
             // Aide de https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
             event.preventDefault();
-            var formData = new FormData(this);
+            const formData = new FormData(this);
 
             fetch('http://localhost/login.php', {
                 method: 'POST',
@@ -231,7 +255,11 @@ $(document).ready(function() {
                 console.log(data);
                 if (data.success) {
                     alert('Login Successful!');
-                    this.reset();
+                    app.setLocation('#/help');
+                    $("#login-button").remove();
+                    $("#mainNav").append(logoutButton);
+                    
+
                 } else {
                     alert('Login Failed: ' + data.message);
                 }
