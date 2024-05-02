@@ -57,30 +57,58 @@ input[type="submit"] {
 }
 
 /* "Guess who" game related */
-#guess-who-board, #guess-who-board > form {
+#guess-who-board {
     display: flex;
     flex-direction: column;
     align-items: center;
+    row-gap: 20px;
+}
+
+#guess-who-board p, #guess-who-board h2 {
+    margin:0;
+}
+
+#guess-who-board-header {
+    display:flex;
+    width:100%;
+    align-items: center;
+    justify-content: center;
+}
+
+#guess-who-board-header > p {
+
+    width:150px;
+    margin-left: auto;
+    margin-right:20%;
+}
+
+#guess-who-board-header > div {
+    width:150px;
+    margin-right:auto;
+    margin-left:20%;
+}
+
+#guess-who-board > form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 10px;
 }
 
 #guess-who-board-form {
-    width:20%;
-}
-
-#guess-who-board-form > div {
-    display:flex;
-    align-items: center;
-    column-gap: 20px;
+    width:15%;
 }
 
 #guess-who-board-textinput {
-    width:max-content;
+    width:100%;
     margin:0;
-}
-#guess-who-board-form > div > label {
-    height:fit-content;
 }
 
-#guess-who-board-form p {
-    margin:0;
+#guess-who-board > table {
+    text-align: center;
+    width:500px;
+}
+
+#guess-who-board > table > thead > tr > th:first-child {
+    width:80px;
 }
