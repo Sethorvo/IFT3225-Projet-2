@@ -56,6 +56,13 @@ $(document).ready(function() {
 
         });
 
+        this.get('#/login', function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("login-container", "main")
+
+        });
+
         this.get('#/dump/faits', function(context) {
 
             this.loadPart("mainHeader", "header");
@@ -65,7 +72,7 @@ $(document).ready(function() {
                 "processing": true,
                 "serverSide": false,
                 "ajax": {
-                    "url": "getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
+                    "url": "http://localhost/getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
                     "dataSrc": ""
                 },
@@ -192,8 +199,8 @@ $(document).ready(function() {
             const langue = $('#rel-lang').val().trim().toLowerCase();
             const concept = $('#rel-conc').val().trim().toLowerCase();
             const relation = $('#rel-val').val().trim();
-            window.location.hash = '#/relation/' + encodeURIComponent(relation)
-                + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept);
+            app.setLocation('#/relation/' + encodeURIComponent(relation)
+                + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept));
     
         });
 
@@ -201,13 +208,38 @@ $(document).ready(function() {
             event.preventDefault();
             const langue = $('#conc-lang').val().trim().toLowerCase();
             const concept = $('#conc-val').val().trim().toLowerCase();
-            window.location.hash = '#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept);
+            app.setLocation('#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept));
         });
     
         $('#rel-simple-form').submit(function(event) {
             event.preventDefault();
             const relation = $('#rel-simple').val().trim();
-            window.location.hash = '#/relation/' + encodeURIComponent(relation);
+            app.setLocation('#/relation/' + encodeURIComponent(relation));
+        });
+
+        $('#login-form').submit(function(event) {
+            // Aide de https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            fetch('http://localhost/login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    alert('Login Successful!');
+                    this.reset();
+                } else {
+                    alert('Login Failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
         });
     });
 

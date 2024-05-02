@@ -27,3 +27,10 @@ CREATE TABLE Facts (
     FOREIGN KEY (relation_id) REFERENCES Relations(relation_id),
     FOREIGN KEY (end_concept_id) REFERENCES Concepts(concept_id)
 );
+
+CREATE TABLE Users (
+   user_id INT AUTO_INCREMENT PRIMARY KEY,
+   username VARCHAR(255) NOT NULL UNIQUE,
+   password VARCHAR(255) NOT NULL,
+   highscore INT DEFAULT 0
+);

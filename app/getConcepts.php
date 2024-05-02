@@ -6,9 +6,8 @@ ob_start();
 // turn off only warnings and notices, but keep errors:
 // Repris de la demo
 error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
-// Set the display of errors and warnings to 'Off'
-ini_set('display_errors', '0');
-ini_set('display_startup_errors', '0');
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST");

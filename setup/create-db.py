@@ -22,7 +22,7 @@ def connectToMySQL(host, user, password):
 
 
 def loadData():
-    with open(mainDirectory/"facts_data.json", "r") as f:
+    with open(mainDirectory/"app"/"facts_data.json", "r") as f:
         return json.load(f)
 
 
