@@ -34,17 +34,17 @@ def insertData(connection, facts):
 
         for fact in facts:
 
-            start, relation, end = fact[0], fact[1], fact[2]
+            start, relation, end, lang = fact[0], fact[1], fact[2], fact[3]
 
             cursor.execute(
-                "INSERT INTO Concepts (label, language) VALUES (%s, 'en') ON DUPLICATE KEY UPDATE concept_id=LAST_INSERT_ID(concept_id)",
-                (start,))
+                "INSERT INTO Concepts (label, language) VALUES (%s, %s) ON DUPLICATE KEY UPDATE concept_id=LAST_INSERT_ID(concept_id)",
+                (start, lang))
             start_id = cursor.lastrowid
 
             # Insérer ou récupérer l'ID pour le concept de fin
             cursor.execute(
-                "INSERT INTO Concepts (label, language) VALUES (%s, 'en') ON DUPLICATE KEY UPDATE concept_id=LAST_INSERT_ID(concept_id)",
-                (end,))
+                "INSERT INTO Concepts (label, language) VALUES (%s, %s) ON DUPLICATE KEY UPDATE concept_id=LAST_INSERT_ID(concept_id)",
+                (end, lang))
             end_id = cursor.lastrowid
 
             # Insérer ou récupérer l'ID pour la relation

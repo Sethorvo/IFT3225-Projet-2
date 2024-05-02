@@ -23,7 +23,9 @@ def get_facts_by_lang(lang, required_concepts, existing_relations, existing_fact
         params = {
             "start": f"/c/{lang}",
             "limit": 50,
-            "offset": offset
+            "offset": offset,
+            "end": f"/c/{lang}"
+
         }
         response = requests.get(BASE_URL, params=params)
         data = response.json()
@@ -33,7 +35,7 @@ def get_facts_by_lang(lang, required_concepts, existing_relations, existing_fact
             relation = edge['rel']['label']
             if edge['start']['language'] == lang and edge['end']['language'] == lang:
                 if (start, relation, end) not in existing_facts:
-                    facts.append((start, relation, end))
+                    facts.append((start, relation, end, lang))
                     concepts.add(start)
                     concepts.add(end)
                     relations.add(relation)
@@ -57,10 +59,12 @@ def generate_html_table(facts):
     soup.append(table)
     return soup.prettify()
 
+
 def save_data(facts):
-    JSONOutputPath = outputDirectory / "facts_data.json"
+    JSONOutputPath = outputDirectory / "app" / "facts_data.json"
     with open(JSONOutputPath, "w") as f:
         json.dump(facts, f)
+
 
 # Collecter les faits pour chaque langue en respectant les contraintes
 all_facts = []
@@ -75,7 +79,7 @@ for lang in LANGUAGES:
 
 # Générer et écrire la table HTML dans un fichier
 html_table = generate_html_table(all_facts)
-HTMLOutputPath = outputDirectory / "conceptnet_facts.html"
+HTMLOutputPath = outputDirectory / "app" / "conceptnet_facts.html"
 with open(HTMLOutputPath, "w", encoding="utf-8") as file:
     file.write(html_table)
 save_data(all_facts)
