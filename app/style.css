@@ -44,7 +44,7 @@ a {
     margin: 1em 2em;
     width: 80%;
 }
-input[type="text"], input[type="submit"] {
+input[type="text"], input[type="submit"], input[type="number"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
