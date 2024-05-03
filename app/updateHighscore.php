@@ -25,21 +25,17 @@ if (isset($_POST["newHighscore"]) and isset($_POST["gameName"])) {
     $newHighscore = $_POST["newHighscore"];
     $gameName = $_POST["gameName"];
 
-    if ($gameName === "guessWho" || $gameName === "related") {
-        
-        $sql = "CALL ChangeHighscore(1, ".$newHighscore.", '".$gameName."');"
+    if ($gameName === "guessWho" or $gameName === "related") { 
 
-        $conn->query($sqlConcept)->fetch_array(MYSQLI_ASSOC);
+        $sql = "CALL ChangeHighscore(1, ".$newHighscore.", '".$gameName."');";
+
+        $conn->query($sql)->fetch_array(MYSQLI_ASSOC);
 
     }
     else {
         header('HTTP/1.1 400 Bad Request');
         exit;        
     }
-
-    //$sqlConcept = "SELECT term, label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
-    
-    //$resultConcept = $conn->query($sqlConcept)->fetch_array(MYSQLI_ASSOC);
 
 }
 else {

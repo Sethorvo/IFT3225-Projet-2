@@ -242,7 +242,7 @@ $(document).ready(function() {
             this.loadPart("mainHeader", "header");
             this.loadPart("guess-who-board", "main");
 
-            $.get("http://localhost/app/getRandomConcept.php", function(data) {
+            $.get("getRandomConcept.php", function(data) {
 
                 // random concept informations
                 const term = data.term;
@@ -387,7 +387,10 @@ $(document).ready(function() {
                         if (score > data.highscore) {
                             $("<p>Vous avez battu votre ancien record (" + data.highscore + ") !</p>").insertAfter(pTag);
 
-                            $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"});
+                            $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"}).always(function(d) {
+                                console.log("POST DATA : ")
+                                console.log(d)
+                            });
                         }
 
                     }
