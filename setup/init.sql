@@ -36,3 +36,7 @@ CREATE TABLE Users (
    highscore_who INT DEFAULT 0,
    highscore_related INT DEFAULT 0
 );
+
+INSERT INTO Users (username, password) VALUES 
+    ('test', '123'),
+    ('ift3225', '5223tfi');
