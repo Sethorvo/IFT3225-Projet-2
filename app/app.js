@@ -267,6 +267,10 @@ $(document).ready(function() {
                 // number of hints per GET request to the ceonceptnet API
                 var hintsPerLoad = Math.ceil(30 / context.params.indice);
 
+                // interval-related vars
+                var interval;
+                var timeRemaining = context.params.temps * 1000;
+
                 function calculateQueryLimit() {
                     return remainingHints > hintsPerLoad ? hintsPerLoad : remainingHints;
                 }
@@ -362,12 +366,47 @@ $(document).ready(function() {
 
                 }
 
+                function endGame(isWon) {
+
+                    clearInterval(interval);
+                    context.loadPart("game-end-modal", "main")
+
+                    if (isWon) {
+                        $("#game-end-modal > div > h2").text("Bravo, vous avez gagné !");
+
+                        const timeRatio = context.params.temps / context.params.indice
+                        const score = Math.ceil(timeRatio) - (timeRatio - remainingHints)
+                        console.log((timeRatio - remainingHints))
+
+                        $("#game-end-modal > div > p").text("Votre score est de " + score)
+                    }
+                    else {
+
+                        $("#game-end-modal > div > h2").text("Dommage, vous avez perdu :(");
+                        $("#game-end-modal > div > p").text("Le concept à deviner était : " + label)
+
+                    }
+
+                    $("#game-end-modal-btn-menu").click(function() {
+
+                        context.redirect("#/help");
+
+                    });
+
+                    $("#game-end-modal-btn-restart").click(function() {
+
+                        app.refresh();
+
+                    });
+
+                }
+
                 $("#guess-who-board-form").submit(function(event) {
 
                     const input = $("#guess-who-board-form > input").val().toLowerCase();
     
-                    if (input === term) {
-                        console.log("gagné")
+                    if (input === label.toLowerCase()) {
+                        endGame(true)
                     }
                     else {
                         $input = $("#guess-who-board-form > input");
@@ -393,9 +432,7 @@ $(document).ready(function() {
                 function startTimer() {
 
                     // interval-related vars
-                    var interval;
-                    const startTime = context.params.temps * 1000;
-                    var timeRemaining = startTime;
+                    const startTime = timeRemaining;
                     const hintTimeInterval = context.params.indice * 1000;
 
                     timerBarTag = $("#guess-who-board-timer > div > div")
@@ -440,6 +477,7 @@ $(document).ready(function() {
         
                             clearInterval(interval);
                             $("#guess-who-board-hint").text("Il n'y a plus d'indices");
+                            endGame(false);
         
                         }
         
