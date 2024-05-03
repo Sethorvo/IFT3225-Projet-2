@@ -20,13 +20,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('HTTP/1.1 204 No Content');
     exit;
 }
+//if (session_status() === PHP_SESSION_ACTIVE) {
+if (true) {
 
-// From https://www.mysqltutorial.org/mysql-basics/mysql-select-random/
-$sql = "SELECT term, label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
+    //$user_id = $_SESSION["user_id"];
+    $user_id = 1;
 
-$result = $conn->query($sql)->fetch_array(MYSQLI_ASSOC);
+    // From https://www.mysqltutorial.org/mysql-basics/mysql-select-random/
+    $sqlConcept = "SELECT term, label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
+    
+    $resultConcept = $conn->query($sqlConcept)->fetch_array(MYSQLI_ASSOC);
+    
+    $sqlHighscore = "SELECT highscore_who FROM Users WHERE user_id = ".$user_id;
+    
+    $resultHighscore = $conn->query($sqlHighscore)->fetch_array(MYSQLI_ASSOC);
 
-echo json_encode($result);
+    $resultConcept["highscore"] = $resultHighscore["highscore_who"];
+    
+    echo json_encode($resultConcept);
+
+}
+else {
+    header("HTTP/1.1 401 Unauthorized");
+    exit;
+}
 
 $conn->close();
 ob_end_flush();
