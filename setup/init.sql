@@ -7,8 +7,9 @@ SET foreign_key_checks = 1;
 CREATE TABLE Concepts (
     concept_id INT AUTO_INCREMENT PRIMARY KEY,
     label VARCHAR(255) NOT NULL,
+    term VARCHAR(255) NOT NULL,
     language VARCHAR(2) NOT NULL,
-    UNIQUE (label)
+    UNIQUE (label, language)
 );
 
 CREATE TABLE Relations (
