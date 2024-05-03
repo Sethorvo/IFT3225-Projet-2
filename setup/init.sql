@@ -1,7 +1,7 @@
 
 -- From https://stackoverflow.com/questions/4922189/drop-multiple-tables-in-one-shot-in-mysql
 SET foreign_key_checks = 0;
-DROP TABLE IF EXISTS Concepts, Relations, Facts;
+DROP TABLE IF EXISTS Concepts, Relations, Facts, Users;
 SET foreign_key_checks = 1;
 
 CREATE TABLE Concepts (
