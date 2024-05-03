@@ -66,7 +66,7 @@ $(document).ready(function() {
         });
 
         this.get('#/logout', function(context) {
-            fetch('http://localhost/logout.php', {
+            fetch('http://localhost/app/logout.php', {
                 method: 'POST'
             })
             .then(response => response.json())
@@ -92,7 +92,7 @@ $(document).ready(function() {
             this.loadPart("mainHeader", "header");
             this.loadPart("stats-container", "main")
             $.ajax({
-                url: 'http://localhost/stats.php',
+                url: 'http://localhost/app/stats.php',
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -120,7 +120,7 @@ $(document).ready(function() {
                 "processing": true,
                 "serverSide": false,
                 "ajax": {
-                    "url": "http://localhost/getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
+                    "url": "http://localhost/app/getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
                     "dataSrc": ""
                 },
@@ -242,7 +242,7 @@ $(document).ready(function() {
             this.loadPart("mainHeader", "header");
             this.loadPart("guess-who-board", "main");
 
-            $.get("getRandomConcept.php", function(data) {
+            $.get("http://localhost/app/getRandomConcept.php", function(data) {
 
                 // random concept informations
                 const term = data.term;
@@ -550,7 +550,7 @@ $(document).ready(function() {
             event.preventDefault();
             const formData = new FormData(this);
 
-            fetch('http://localhost/login.php', {
+            fetch('http://localhost/app/login.php', {
                 method: 'POST',
                 body: formData
             })
@@ -579,7 +579,7 @@ $(document).ready(function() {
 
     function saveDataToDatabase(data) {
         $.ajax({
-            url: 'http://localhost/db_feed.php',
+            url: 'http://localhost/app/db_feed.php',
             type: 'POST',
             data: JSON.stringify(data),
             contentType: 'application/json; charset=utf-8',
