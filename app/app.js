@@ -189,66 +189,201 @@ $(document).ready(function() {
             this.loadPart("mainHeader", "header");
             this.loadPart("guess-who-board", "main");
 
-            var concept;
-            var language;
-            var interval;
-            var startTime = this.params.temps * 1000
-            var timeRemaining = startTime;
-            var hintTimeInterval = this.params.indice * 1000;
-            var nextAPIQuery
-
             $.get("getRandomConcept.php", function(data) {
-                concept = data.label;
-                language = data.language;
+
+                // random concept informations
+                const concept = data.label;
+                const language = data.language;
+
+                /*const concept = "romanciers";
+                const language = "fr";*/
+
+                // Disable the form inputs until the game is fully loaded
+                $("#guess-who-board-form *").prop("disabled", true);
+                var hasFullyLoaded = false;
+
+                var remainingHints = context.params.temps / context.params.indice;
+
+                var hints = [];
+                var hintsAlreadyLoaded = new Set();
+
+                // length of the hints variable when a new load of hints is needed
+                var hintsRefreshLength = Math.ceil(10 / context.params.indice);
+
+                // number of hints per GET request to the ceonceptnet API
+                var hintsPerLoad = Math.ceil(30 / context.params.indice);
+
+                function calculateQueryLimit() {
+                    return remainingHints > hintsPerLoad ? hintsPerLoad : remainingHints;
+                }
 
                 // regex from https://stackoverflow.com/questions/441018/replacing-spaces-with-underscores-in-javascript
-                nextAPIQuery = "https://api.conceptnet.io/query?node=/c/" + language + "/" + concept.replace(/ /g, "_") + "&other=/c/" + language + "&limit=10";
-            })
+                var nextAPIQuery = "https://api.conceptnet.io/query?node=/c/" + language + "/" + concept.replace(/ /g, "_") + "&other=/c/" + language + "&limit=" + calculateQueryLimit();
 
-            $("#guess-who-board-form").submit(function(event) {
+                console.log("Concept : " + concept);
+                console.log(nextAPIQuery);
 
-                const input = $("#guess-who-board-form > input").val();
+                // Loads & start the game
+                getNewHints();
 
-                if (input === concept) {
-                    console.log("gagné")
+                function prepareNextAPIQuery(queryData) {
+
+                    if (queryData.view && queryData.view.nextPage) {
+                        nextAPIQuery = new URL("https://api.conceptnet.io" + queryData.view.nextPage);
+                        nextAPIQuery.searchParams.set("limit", calculateQueryLimit());
+                        nextAPIQuery = nextAPIQuery.href;
+                    }
+                    else {
+                        nextAPIQuery = false;
+                    }
+
                 }
-                else {
-                    console.log("pas trouvé")
+
+                function isNewRequestNeeded() {
+                    return (nextAPIQuery                        // Make sure there is still a next page
+                        && hints.length <= hintsRefreshLength   // Anticipate API response time
+                        && hints.length < remainingHints);      // Only load if necessary
                 }
 
-                return false;
+                function loadHints(queryData) {
 
-            });
+                    $.each(queryData.edges, function(_, obj) {
 
-            timerBarTag = $("#guess-who-board-timer > div > div")
+                        const startTerm = obj.start.term.match(/[^/]+$/)[0];
+                        const endTerm = obj.end.term.match(/[^/]+$/)[0];
 
-            interval = setInterval(() => {
+                        let newHint;
+                        
+                        if (startTerm === concept) {
+                            newHint = "??? " + obj.rel.label + " " + obj.end.label;
+                        }
+                        else {
+                            newHint = obj.start.label + " " + obj.rel.label + " ???";
+                        }
 
-                if ((timeRemaining % 1000) === 0) {
-                    const timeBeforeNextHint = ((timeRemaining-1000)%hintTimeInterval)/1000 + 1
-                    $("#guess-who-board-hint").text(timeBeforeNextHint)
-                    
-                    if (timeBeforeNextHint === 10) {
+                        if (!hintsAlreadyLoaded.has(newHint)) {
 
-                        $.get("https://api.conceptnet.io/c/fr/ordinateur?offset=20&limit=100")
-                        "https://api.conceptnet.io/query?node=/c/en/geek&other=/c/en&limit"
+                            hints.push(newHint);
+                            hintsAlreadyLoaded.add(newHint)
+
+                        }
+
+                    })
+
+                }
+
+
+                function getNewHints() {
+
+                    if (isNewRequestNeeded()) {
+
+                        const nextAPIQuerySave = nextAPIQuery;
+                        nextAPIQuery = false;   // prevent any other attempt to get new hints while the next request has not finished
+                        
+                        $.get(nextAPIQuerySave, function(queryData) {
+
+                            loadHints(queryData);
+                            prepareNextAPIQuery(queryData);
+
+                            if (!isNewRequestNeeded()) {  // This will run when the recursive calls are completed
+
+                                if (!hasFullyLoaded) {  // This will be run only once after the first hints are loaded
+                                    hasFullyLoaded = true;
+                                    // re-enable the form inputs
+                                    $("#guess-who-board-form *").prop("disabled", false);
+                                    startTimer();
+                                }
+
+                            }
+                            // Recursively try to GET new informations. It allows to always have the hintsPerLoad (or remainingHints) even
+                            // When there is duplicated relations
+                            else if (isNewRequestNeeded()) {
+                                getNewHints();
+                            }
+
+                        });
 
                     }
-                }
-
-                timeRemaining -= 10;
-
-                let percent = timeRemaining * 100 / startTime
-                timerBarTag.css("width", "calc(" + percent + "% - 4px)")
-
-                if (timeRemaining < 0) {
-
-                    clearInterval(interval);
 
                 }
 
-            }, 10);
+                $("#guess-who-board-form").submit(function(event) {
 
+                    const input = $("#guess-who-board-form > input").val();
+    
+                    if (input === concept) {
+                        console.log("gagné")
+                    }
+                    else {
+                        console.log("pas trouvé")
+                    }
+    
+                    return false;
+    
+                });
+
+                function startTimer() {
+
+                    // interval-related vars
+                    var interval;
+                    const startTime = context.params.temps * 1000;
+                    var timeRemaining = startTime;
+                    const hintTimeInterval = context.params.indice * 1000;
+
+                    timerBarTag = $("#guess-who-board-timer > div > div")
+    
+                    interval = setInterval(() => {
+        
+                        // handle hints
+                        if ((timeRemaining % 1000) === 0) {
+    
+                            const timeBeforeNextHint = ((timeRemaining-1000) % hintTimeInterval)/1000 + 1
+        
+                            $("#guess-who-board-hint > span").text(timeBeforeNextHint)
+
+                            console.log("===============")
+                            console.log(hints)
+                            console.log(hintsAlreadyLoaded)
+
+                            if (hints.length === 0) {
+                                $("#guess-who-board-hint").text("Il n'y a plus d'indices");
+                            }
+                            else if (timeBeforeNextHint == context.params.indice) {
+                                
+    
+                                remainingHints--;
+    
+                                let newHint = $("<tr></tr>")
+                                const number = $("#guess-who-board > table > tbody > tr").length + 1
+                                newHint.append($("<td>" + number + "</td>"))
+                                newHint.append($("<td>" + hints.pop() + "</td>"))
+                                $("#guess-who-board > table > tbody").prepend(newHint) 
+    
+                                getNewHints()
+    
+                            }
+    
+                        }
+        
+                        timeRemaining -= 10;
+        
+                        // update timer CSS. Took from our previous homework (project1)
+                        let percent = timeRemaining * 100 / startTime
+                        timerBarTag.css("width", "calc(" + percent + "% - 4px)")
+        
+                        // end of timer
+                        if (timeRemaining < 0) {
+        
+                            clearInterval(interval);
+                            $("#guess-who-board-hint").text("Il n'y a plus d'indices");
+        
+                        }
+        
+                    }, 10);
+
+                }
+
+            })
         });
 
         this.get("#/jeux/quisuisje/:temps", function(context) {
