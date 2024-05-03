@@ -11,7 +11,7 @@ ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
 
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST");
+header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset: UTF-8"); // Sets the content type as JSON
 

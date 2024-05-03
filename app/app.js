@@ -256,6 +256,8 @@ $(document).ready(function() {
                 $("#guess-who-board-form *").prop("disabled", true);
                 var hasFullyLoaded = false;
 
+                $("#guess-who-board-header > p > span").text(data.highscore);
+
                 var remainingHints = context.params.temps / context.params.indice;
 
                 var hints = [];
@@ -370,15 +372,24 @@ $(document).ready(function() {
 
                     clearInterval(interval);
                     context.loadPart("game-end-modal", "main")
+                    $("#game-end-modal-btn-restart").focus()
 
                     if (isWon) {
                         $("#game-end-modal > div > h2").text("Bravo, vous avez gagné !");
 
                         const timeRatio = context.params.temps / context.params.indice
                         const score = Math.ceil(timeRatio) - (timeRatio - remainingHints)
-                        console.log((timeRatio - remainingHints))
 
-                        $("#game-end-modal > div > p").text("Votre score est de " + score)
+                        let pTag = $("#game-end-modal > div > p");
+
+                        pTag.text("Votre score est de " + score);
+                        
+                        if (score > data.highscore) {
+                            $("<p>Vous avez battu votre ancien record (" + data.highscore + ") !</p>").insertAfter(pTag);
+
+                            $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"});
+                        }
+
                     }
                     else {
 
