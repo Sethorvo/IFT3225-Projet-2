@@ -33,5 +33,6 @@ CREATE TABLE Users (
    user_id INT AUTO_INCREMENT PRIMARY KEY,
    username VARCHAR(255) NOT NULL UNIQUE,
    password VARCHAR(255) NOT NULL,
-   highscore INT DEFAULT 0
+   highscore_who INT DEFAULT 0,
+   highscore_related INT DEFAULT 0
 );

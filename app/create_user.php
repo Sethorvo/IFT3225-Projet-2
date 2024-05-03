@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
     // SQL query to insert a new user with a default score of 0
-    $query = "INSERT INTO Users (username, password, highscore) VALUES ('$username', '$password', 0)";
+    $query = "INSERT INTO Users (username, password, highscore) VALUES ('$username', '$password', 0, 0)";
     $result = mysqli_query($conn, $query);
 
     if ($result) {

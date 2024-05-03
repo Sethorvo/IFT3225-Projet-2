@@ -5,7 +5,7 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
-$query = "SELECT username, highscore FROM Users";
+$query = "SELECT username, highscore_who, highscore_related FROM Users";
 $result = mysqli_query($conn, $query);
 
 
