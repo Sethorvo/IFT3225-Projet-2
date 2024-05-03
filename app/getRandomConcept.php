@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // From https://www.mysqltutorial.org/mysql-basics/mysql-select-random/
-$sql = "SELECT label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
+$sql = "SELECT term, label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
 
 $result = $conn->query($sql)->fetch_array(MYSQLI_ASSOC);
 
