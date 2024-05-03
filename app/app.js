@@ -87,6 +87,29 @@ $(document).ready(function() {
 
         });
 
+        this.get('#/stats', function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("stats-container", "main")
+            $.ajax({
+                url: 'http://localhost/stats.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.length === 4) {
+                        $('#concepts-count').text(data[0]);
+                        $('#relations-count').text(data[1]);
+                        $('#facts-count').text(data[2]);
+                        $('#users-count').text(data[3]);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching data:', textStatus, errorThrown);
+                    $('#stats').html('<li>Error loading data</li>');
+                }
+            });
+        });
+
 
         this.get('#/dump/faits', function(context) {
 
@@ -122,9 +145,19 @@ $(document).ready(function() {
                 "serverSide": false,
                 "destroy": true,
                 "ajax": {
-                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept + "&limit=1000",
+                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept +"&end=/c/"+ langue +"&limit=50",
                     "type": "GET",
-                    "dataSrc": "edges"
+                    "dataSrc": "edges",
+                    "dataFilter": function(data) {
+                        const json = JSON.parse(data);
+                        if (json && json.edges) { //verifie que les donnes et les edges sont la
+                            saveDataToDatabase(json.edges);
+                            return data;
+                        } else {
+                            console.error("No edges found in the data");
+                            return JSON.stringify([]);
+                        }
+                    }
                 },
                 "columns": [
                     { "data": "start.label" },
@@ -148,9 +181,19 @@ $(document).ready(function() {
                 "serverSide": false,
                 "destroy": true,
                 "ajax": {
-                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept + "&rel=/r/"+ relation+"&limit=1000",
+                    "url": `https://api.conceptnet.io/query?start=/c/`+ langue + '/' + concept +"&end=/c/"+ langue + "&rel=/r/"+ relation+"&limit=50",
                     "type": "GET",
-                    "dataSrc": "edges"
+                    "dataSrc": "edges",
+                    "dataFilter": function(data) {
+                        const json = JSON.parse(data);
+                        if (json && json.edges) {
+                            saveDataToDatabase(json.edges);
+                            return data;
+                        } else {
+                            console.error("No edges found in the data");
+                            return JSON.stringify([]);
+                        }
+                    }
                 },
                 "columns": [
                     { "data": "start.label" },
@@ -172,9 +215,19 @@ $(document).ready(function() {
                 "serverSide": false,
                 "destroy": true,
                 "ajax": {
-                    "url": `https://api.conceptnet.io/query?rel=/r/`+ relation + "&limit=1000",
+                    "url": `https://api.conceptnet.io/query?rel=/r/`+ relation + "&limit=50",
                     "type": "GET",
-                    "dataSrc": "edges"
+                    "dataSrc": "edges",
+                    "dataFilter": function(data) {
+                        const json = JSON.parse(data);
+                        if (json && json.edges) {
+                            saveDataToDatabase(json.edges);
+                            return data;
+                        } else {
+                            console.error("No edges found in the data");
+                            return JSON.stringify([]);
+                        }
+                    }
                 },
                 "columns": [
                     { "data": "start.label" },
@@ -463,5 +516,20 @@ $(document).ready(function() {
     });
 
     app.run('#/help');
+
+    function saveDataToDatabase(data) {
+        $.ajax({
+            url: 'http://localhost/db_feed.php',
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json; charset=utf-8',
+            success: function(response) {
+                console.log("Data saved successfully:", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error saving data:", error);
+            }
+        });
+    }
 
 });
