@@ -245,10 +245,11 @@ $(document).ready(function() {
             $.get("getRandomConcept.php", function(data) {
 
                 // random concept informations
-                const concept = data.label;
+                const term = data.term;
+                const label = data.label;
                 const language = data.language;
 
-                /*const concept = "romanciers";
+                /*const term = "romanciers";
                 const language = "fr";*/
 
                 // Disable the form inputs until the game is fully loaded
@@ -271,9 +272,9 @@ $(document).ready(function() {
                 }
 
                 // regex from https://stackoverflow.com/questions/441018/replacing-spaces-with-underscores-in-javascript
-                var nextAPIQuery = "https://api.conceptnet.io/query?node=/c/" + language + "/" + concept.replace(/ /g, "_") + "&other=/c/" + language + "&limit=" + calculateQueryLimit();
+                var nextAPIQuery = "https://api.conceptnet.io/query?node=/c/" + language + "/" + term + "&other=/c/" + language + "&limit=" + calculateQueryLimit();
 
-                console.log("Concept : " + concept);
+                console.log("Concept : " + term);
                 console.log(nextAPIQuery);
 
                 // Loads & start the game
@@ -307,7 +308,7 @@ $(document).ready(function() {
 
                         let newHint;
                         
-                        if (startTerm === concept) {
+                        if (startTerm === term) {
                             newHint = "??? " + obj.rel.label + " " + obj.end.label;
                         }
                         else {
@@ -344,6 +345,7 @@ $(document).ready(function() {
                                     hasFullyLoaded = true;
                                     // re-enable the form inputs
                                     $("#guess-who-board-form *").prop("disabled", false);
+                                    $("#guess-who-board-form > input").focus();
                                     startTimer();
                                 }
 
@@ -362,13 +364,26 @@ $(document).ready(function() {
 
                 $("#guess-who-board-form").submit(function(event) {
 
-                    const input = $("#guess-who-board-form > input").val();
+                    const input = $("#guess-who-board-form > input").val().toLowerCase();
     
-                    if (input === concept) {
+                    if (input === term) {
                         console.log("gagné")
                     }
                     else {
-                        console.log("pas trouvé")
+                        $input = $("#guess-who-board-form > input");
+
+                        $input.effect("shake", {direction: "left", distance: 12, times: 2}, 400);
+                        $input.addClass("input-error");
+                        $("#guess-who-board-form > *").prop("disabled", true);
+
+                        setTimeout(function() {
+
+                            $("#guess-who-board-form > *").prop("disabled", false);
+                            $input.removeClass("input-error");
+                            $input.focus();
+                            $input.val("");
+
+                        }, 450)
                     }
     
                     return false;
@@ -393,10 +408,6 @@ $(document).ready(function() {
                             const timeBeforeNextHint = ((timeRemaining-1000) % hintTimeInterval)/1000 + 1
         
                             $("#guess-who-board-hint > span").text(timeBeforeNextHint)
-
-                            console.log("===============")
-                            console.log(hints)
-                            console.log(hintsAlreadyLoaded)
 
                             if (hints.length === 0) {
                                 $("#guess-who-board-hint").text("Il n'y a plus d'indices");

@@ -133,6 +133,10 @@ input[type="submit"] {
     width:15%;
 }
 
+.input-error {
+    border-color:#dc3545;
+}
+
 #guess-who-board-textinput {
     width:100%;
     margin:0;
@@ -145,4 +149,8 @@ input[type="submit"] {
 
 #guess-who-board > table > thead > tr > th:first-child {
     width:80px;
+}
+
+#guess-who-board > table > tbody > tr:first-child {
+    --bs-table-bg:rgb(194, 240, 255);
 }
