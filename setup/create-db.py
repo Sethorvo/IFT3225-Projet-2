@@ -84,9 +84,14 @@ def selectDatabase(connection):
         except Error as e:
             print(f"Erreur lors de la connexion à la database: {e}")
 
-def runSetupQueries(connection, query):
+def runSetupQueries(connection):
 
-    statements = sqlparse.split(sqlparse.format(query, strip_comments=True))
+    # execute init.sql queries
+    sqlSetupFile = open(mainDirectory/"setup"/"init.sql", "r")
+    fileContent = sqlSetupFile.read()
+    sqlSetupFile.close()
+
+    statements = sqlparse.split(sqlparse.format(fileContent, strip_comments=True))
 
     try:
 
@@ -99,6 +104,17 @@ def runSetupQueries(connection, query):
             cursor.execute(statement)
             connection.commit()
 
+        proceduresDirectory = Path(__file__).parent / "sqlProcedures"
+
+        for procedureFilePath in proceduresDirectory.glob("*.sql"):
+
+            sqlProcedureFile = open(procedureFilePath, "r")
+            sqlProcedureStatement = sqlProcedureFile.read()
+            sqlProcedureFile.close()
+
+            cursor.execute(sqlProcedureStatement)
+            connection.commit()
+        
         cursor.close()
 
     except Error as e:
@@ -115,14 +131,10 @@ def main():
 
     if connection:
 
-        sqlSetupFile = open(mainDirectory/"setup"/"init.sql", "r")
-
-        runSetupQueries(connection, sqlSetupFile.read())
+        runSetupQueries(connection)
 
         facts = loadData()
         insertData(connection, facts)
-
-        sqlSetupFile.close()
 
         connection.close()
         

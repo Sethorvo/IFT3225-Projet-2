@@ -4,6 +4,8 @@ SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS Concepts, Relations, Facts, Users;
 SET foreign_key_checks = 1;
 
+DROP PROCEDURE IF EXISTS ChangeHighscore;
+
 CREATE TABLE Concepts (
     concept_id INT AUTO_INCREMENT PRIMARY KEY,
     label VARCHAR(255) NOT NULL,
