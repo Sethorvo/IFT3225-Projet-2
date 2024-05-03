@@ -87,6 +87,29 @@ $(document).ready(function() {
 
         });
 
+        this.get('#/stats', function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("stats-container", "main")
+            $.ajax({
+                url: 'http://localhost/stats.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.length === 4) {
+                        $('#concepts-count').text(data[0]);
+                        $('#relations-count').text(data[1]);
+                        $('#facts-count').text(data[2]);
+                        $('#users-count').text(data[3]);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching data:', textStatus, errorThrown);
+                    $('#stats').html('<li>Error loading data</li>');
+                }
+            });
+        });
+
 
         this.get('#/dump/faits', function(context) {
 
