@@ -19,6 +19,15 @@ $router->add('/list_concepts', array(),
         exit;
     });
 
+$router->add('/list_concepts_paginated', array(),
+    function(Route $route) {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            include 'list_concepts_paginated.php';
+        } else {
+            header("HTTP/1.1 405 Method Not Allowed");
+        }
+});    
+
 $router->add('/list_relations', array(),
     function(Route $route) {
         include 'list_relations.php';
