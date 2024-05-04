@@ -23,7 +23,7 @@ class Relation {
             $stmt = $conn->prepare("INSERT INTO Relations (label) VALUES (?)");
             $stmt->bind_param('s', $this->label);
             $stmt->execute();
-            $this->relation_id = mysqli_insert_id($conn);
+            $this->relation_id = $stmt->insert_id;
         }
         return $this->relation_id;
     }

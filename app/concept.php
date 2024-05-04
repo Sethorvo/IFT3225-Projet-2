@@ -28,7 +28,7 @@ class Concept {
             $stmt = $conn->prepare("INSERT INTO Concepts (label, term, language) VALUES (?, ?, ?)");
             $stmt->bind_param('sss', $this->label, $this->term, $this->language);
             $stmt->execute();
-            $this->concept_id = mysqli_insert_id($conn);
+            $this->concept_id = $stmt->insert_id;
         }
         return $this->concept_id;
     }
