@@ -27,9 +27,21 @@ if (isset($_POST["newHighscore"]) and isset($_POST["gameName"])) {
 
     if ($gameName === "guessWho" or $gameName === "related") { 
 
-        $sql = "CALL ChangeHighscore(1, ".$newHighscore.", '".$gameName."');";
+        $sqlGetHighscore = "CALL GetHighscore(1, '".$gameName."');";
+        $conn->real_query("CALL GetHighscore(1, '".$newHighscore."');");
 
-        $conn->query($sql)->fetch_array(MYSQLI_ASSOC);
+        $result = $conn->store_result();
+        $currentHighscore = $result->fetch_all(MYSQLI_ASSOC)[0]["highscore_who"];
+        $result->free();
+        $conn->next_result();
+
+        if ($currentHighscore < $newHighscore) {
+
+            $sqlChangeHighscore = "CALL ChangeHighscore(1, ".$newHighscore.", '".$gameName."');";
+
+            $conn->query($sqlChangeHighscore);
+
+        }
 
     }
     else {

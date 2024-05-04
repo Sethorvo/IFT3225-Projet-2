@@ -387,10 +387,7 @@ $(document).ready(function() {
                         if (score > data.highscore) {
                             $("<p>Vous avez battu votre ancien record (" + data.highscore + ") !</p>").insertAfter(pTag);
 
-                            $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"}).always(function(d) {
-                                console.log("POST DATA : ")
-                                console.log(d)
-                            });
+                            $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"});
                         }
 
                     }
