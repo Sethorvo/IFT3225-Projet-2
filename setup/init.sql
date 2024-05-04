@@ -12,7 +12,7 @@ CREATE TABLE Concepts (
     label VARCHAR(255) NOT NULL,
     term VARCHAR(255) NOT NULL,
     language VARCHAR(2) NOT NULL,
-    UNIQUE (label, language)
+    UNIQUE (term, language)
 ) ENGINE=InnoDB; 
 
 CREATE TABLE Relations (
