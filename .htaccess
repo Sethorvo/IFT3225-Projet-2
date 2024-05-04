@@ -1,7 +1,0 @@
-#Repris des diapos du cours
-RewriteEngine On
-Options -Multiviews
-RewriteBase /api/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^((?!routing\.php).*)$ routing.php [QSA,L]

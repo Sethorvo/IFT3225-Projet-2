@@ -1,0 +1,6 @@
+#Repris des diapos du cours
+#RewriteEngine On
+#RewriteBase /hiver/~eyrollea/Technologie-Web-Projet-2/api/
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.+)$ router.php [QSA,L]

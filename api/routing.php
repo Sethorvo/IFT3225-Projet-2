@@ -4,33 +4,34 @@ use Kunststube\Router\Router,
 require_once '../Router/Router.php';
 
 // Repris des diapos REST API du cours
+$p = "/hiver/~eyrollea/Technologie-Web-Projet-2/api";
 $router = new Router;
 
-$router->add('/api/help', array(),
+$router->add('/help', array(),
     function(Route $route) {
         include 'help.php';
         exit;
     });
 
-$router->add('/api/list_concepts', array(),
+$router->add('/list_concepts', array(),
     function(Route $route) {
         include 'list_concepts.php';
         exit;
     });
 
-$router->add('/api/list_relations', array(),
+$router->add('/list_relations', array(),
     function(Route $route) {
         include 'list_relations.php';
         exit;
     });
 
-$router->add('/api/list_users', array(),
+$router->add('/list_users', array(),
     function(Route $route) {
         include 'list_users.php';
         exit;
     });
 
-$router->add('/api/create_user', array() ,
+$router->add('/create_user', array() ,
     function(Route $route) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         include 'create_user.php';
@@ -39,7 +40,4 @@ $router->add('/api/create_user', array() ,
     }
 });
 
-// Get the current URI and method from the server environment
-$uri = $_SERVER['REQUEST_URI'];
-$method = $_SERVER['REQUEST_METHOD'];
-$router->route($uri , $method);
+$router->route($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
