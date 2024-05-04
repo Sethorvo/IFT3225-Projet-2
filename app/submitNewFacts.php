@@ -33,11 +33,11 @@ if (isset($_POST["facts"])) {
         $firstConceptId;
 
         $firstConceptInfos = ($firstConceptIsStart) ? $fact["rel"]["start"] : $fact["rel"]["end"];
-        $term = $firstConceptInfos["term"];
-        $label = $firstConceptInfos["label"];
+        $conceptTerm = $firstConceptInfos["term"];
+        $conceptLabel = $firstConceptInfos["label"];
 
         $getConceptStmt = $conn->prepare("SELECT concept_id FROM Concepts WHERE term = ? AND language = ?");
-        $getConceptStmt->bind_param("ss", $term, $language);
+        $getConceptStmt->bind_param("ss", $conceptTerm, $language);
         $getConceptStmt->execute();
 
         $result = $getConceptStmt->get_result();
@@ -47,7 +47,7 @@ if (isset($_POST["facts"])) {
 
             // Insert the new concept
             $stmt = $conn->prepare("INSERT INTO Concepts(label, term, language) VALUES(?, ?, ?)");
-            $stmt->bind_param("sss", $label, $term, $language);
+            $stmt->bind_param("sss", $conceptLabel, $conceptTerm, $language);
             $stmt->execute();
 
             // Retrieves its id
@@ -58,17 +58,54 @@ if (isset($_POST["facts"])) {
 
         $firstConceptId = $result->fetch_assoc()["concept_id"];
 
-
         // Get the second concept id
-        $term = ($firstConceptIsStart) ? $fact["rel"]["end"] : $fact["rel"]["start"];
+        $conceptTerm = ($firstConceptIsStart) ? $fact["rel"]["end"] : $fact["rel"]["start"];
         $getConceptStmt->execute();
         $secondConceptId = $getConceptStmt->get_result()->fetch_assoc()["concept_id"];
 
         // Determine which concept is the start and which is the end 
-        $startConceptId = $firstConceptIsStart ? $firstConceptId : $endConceptId;
-        $endConceptId = $firstConceptIsStart ? $endConceptId : $firstConceptId;
+        $startConceptId = $firstConceptIsStart ? $firstConceptId : $secondConceptId;
+        $endConceptId = $firstConceptIsStart ? $secondConceptId : $firstConceptId;
 
-        
+        // Get the relation ID
+        $relationLabel = $fact["rel"]["relLabel"];
+      
+        $getRelationStmt = $conn->prepare("SELECT relation_id FROM Relations WHERE label = ?");
+        $getRelationStmt->bind_param("s", $relationLabel);
+        $getRelationStmt->execute();
+
+        $result = $getRelationStmt->get_result();
+
+        // Relation is new
+        if ($result->num_rows === 0) {
+
+            // Insert the new relation
+            $stmt = $conn->prepare("INSERT INTO Relations(label) VALUES (?)");
+            $stmt->bind_param("s", $relationLabel);
+            $stmt->execute();
+
+            // Retrieves its id
+            $getRelationStmt->execute();
+            $result = $getRelationStmt->get_result();
+
+        }
+
+        $relationId = $result->fetch_assoc()["relation_id"];
+
+        // Finally, handle the fact insertion
+        $stmt = $conn->prepare("SELECT EXISTS (SELECT * FROM Facts WHERE start_concept_id = ? AND relation_id = ? AND end_concept_id = ?) AS factExists");
+        $stmt->bind_param("iii", $startConceptId, $relationId, $endConceptId);
+        $stmt->execute();
+
+        $factExists = $stmt->get_result()->fetch_assoc()["factExists"];
+
+        if (!$factExists) {
+
+            $stmt = $conn->prepare("INSERT INTO Facts(start_concept_id, relation_id, end_concept_id) VALUES (?, ?, ?)");
+            $stmt->bind_param("iii", $startConceptId, $relationId, $endConceptId);
+            $stmt->execute();            
+
+        }
 
     }
 
@@ -77,7 +114,4 @@ else {
     header('HTTP/1.1 400 Bad Request');
     exit;
 }
-
-$conn->close();
-
 ?>

@@ -315,7 +315,7 @@ $(document).ready(function() {
                         const startTerm = obj.start.term.match(/[^/]+$/)[0];
                         const endTerm = obj.end.term.match(/[^/]+$/)[0];
 
-                        let fact = {language: language, rel : {rel: obj.rel.label}}
+                        let fact = {language: language, rel : {relLabel: obj.rel.label}}
 
                         let newHint;
                         
@@ -341,15 +341,8 @@ $(document).ready(function() {
 
                     })
 
-                    submitNewConcepts(facts)
-
-                }
-
-                function submitNewConcepts(facts) {
-
-                    $.post("submitNewFacts.php", {facts: facts}).always(function(d) {
-                        console.log(d)
-                    });
+                    // Submit new facts
+                    $.post("submitNewFacts.php", {facts: facts});
 
                 }
 
