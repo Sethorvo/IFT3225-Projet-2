@@ -19,14 +19,12 @@ class Relation {
         $stmt->execute();
         $stmt->bind_result($this->relation_id);
 
-        if ($stmt->fetch()) {
-            return $this->relation_id;
-
-        } else {
+        if (!$stmt->fetch()) {
             $stmt = $conn->prepare("INSERT INTO Relations (label) VALUES (?)");
             $stmt->bind_param('s', $this->label);
             $stmt->execute();
-            return mysqli_insert_id($conn);
+            $this->relation_id = mysqli_insert_id($conn);
         }
+        return $this->relation_id;
     }
 }

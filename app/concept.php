@@ -24,13 +24,12 @@ class Concept {
         $stmt->execute();
         $stmt->bind_result($this->concept_id);
 
-        if ($stmt->fetch()) {
-            return $this->concept_id;
-        } else {
+        if (!$stmt->fetch()) {
             $stmt = $conn->prepare("INSERT INTO Concepts (label, term, language) VALUES (?, ?, ?)");
             $stmt->bind_param('sss', $this->label, $this->term, $this->language);
             $stmt->execute();
-            return mysqli_insert_id($conn);
+            $this->concept_id = mysqli_insert_id($conn);
         }
+        return $this->concept_id;
     }
 }
