@@ -11,7 +11,7 @@ $result = mysqli_query($conn, $query);
 
 if ($result) {
     $users = mysqli_fetch_all($result);
-    echo json_encode($users, JSON_UNESCAPED_UNICODE);
+    echo json_encode($users);
 } else {
     echo json_encode(array("error" => mysqli_error($conn)));
 }
