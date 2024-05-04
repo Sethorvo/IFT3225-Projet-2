@@ -307,19 +307,29 @@ $(document).ready(function() {
 
                 function loadHints(queryData) {
 
+                    var facts = []
+
                     $.each(queryData.edges, function(_, obj) {
 
                         const startTerm = obj.start.term.match(/[^/]+$/)[0];
                         const endTerm = obj.end.term.match(/[^/]+$/)[0];
 
+                        let fact = {language: language, rel : {rel: obj.rel.label}}
+
                         let newHint;
                         
                         if (startTerm === term) {
                             newHint = "??? " + obj.rel.label + " " + obj.end.label;
+                            fact.rel.start = startTerm;
+                            fact.rel.end = {term: endTerm, label: obj.end.label};
                         }
                         else {
                             newHint = obj.start.label + " " + obj.rel.label + " ???";
+                            fact.rel.end = endTerm;
+                            fact.rel.start = {term: startTerm, label: obj.start.label};
                         }
+
+                        facts.push(fact);
 
                         if (!hintsAlreadyLoaded.has(newHint)) {
 
@@ -330,8 +340,17 @@ $(document).ready(function() {
 
                     })
 
+                    submitNewConcepts(facts)
+
                 }
 
+                function submitNewConcepts(facts) {
+
+                    $.post("submitNewFacts.php", {facts: facts}).always(function(d) {
+                        console.log(d)
+                    });
+
+                }
 
                 function getNewHints() {
 
