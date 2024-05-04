@@ -27,19 +27,19 @@ if (isset($_POST["newHighscore"]) and isset($_POST["gameName"])) {
 
     if ($gameName === "guessWho" or $gameName === "related") { 
 
-        $sqlGetHighscore = "CALL GetHighscore(1, '".$gameName."');";
-        $conn->real_query("CALL GetHighscore(1, '".$newHighscore."');");
+        $fieldName = ($gameName === "guessWho") ? "highscore_who" : "highscore_related";
 
-        $result = $conn->store_result();
-        $currentHighscore = $result->fetch_all(MYSQLI_ASSOC)[0]["highscore_who"];
-        $result->free();
-        $conn->next_result();
+        $stmt = $conn->prepare("SELECT ".$fieldName." AS highscore FROM Users WHERE user_id = ?");
+        $stmt->bind_params("i", $user_id);
+        $stmt->execute(); 
+        
+        $currentHighscore = $stmt->get_result()->fetch_assoc()["highscore"];
 
         if ($currentHighscore < $newHighscore) {
 
-            $sqlChangeHighscore = "CALL ChangeHighscore(1, ".$newHighscore.", '".$gameName."');";
-
-            $conn->query($sqlChangeHighscore);
+            $stmt = $conn->prepare("UPDATE users SET ".$fieldName." = ? WHERE user_id = ?;")
+            $stmt->bind_params("ii", $newHighscore, $user_id);
+            $stmt->execute(); 
 
         }
 

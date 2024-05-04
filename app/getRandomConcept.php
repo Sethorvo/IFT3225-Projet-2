@@ -28,16 +28,17 @@ if (true) {
 
     // From https://www.mysqltutorial.org/mysql-basics/mysql-select-random/
     $sqlConcept = "SELECT term, label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
-    
-    $resultConcept = $conn->query($sqlConcept)->fetch_array(MYSQLI_ASSOC);
-    
-    $sqlHighscore = "SELECT highscore_who FROM Users WHERE user_id = ".$user_id;
-    
-    $resultHighscore = $conn->query($sqlHighscore)->fetch_array(MYSQLI_ASSOC);
+    $response = $conn->query($sqlConcept)->fetch_assoc();
 
-    $resultConcept["highscore"] = $resultHighscore["highscore_who"];
+    $stmt = $conn->prepare("SELECT highscore_who FROM Users WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
     
-    echo json_encode($resultConcept);
+    $resultHighscore = $stmt->get_result()->fetch_assoc();
+
+    $response["highscore"] = $resultHighscore["highscore_who"];
+    
+    echo json_encode($response);
 
 }
 else {
