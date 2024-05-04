@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS Concepts, Relations, Facts, Users;
 SET foreign_key_checks = 1;
 
 DROP PROCEDURE IF EXISTS ChangeHighscore;
+DROP PROCEDURE IF EXISTS GetHighscore;
 
 CREATE TABLE Concepts (
     concept_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -12,13 +13,13 @@ CREATE TABLE Concepts (
     term VARCHAR(255) NOT NULL,
     language VARCHAR(2) NOT NULL,
     UNIQUE (label, language)
-);
+) ENGINE=InnoDB; 
 
 CREATE TABLE Relations (
     relation_id INT AUTO_INCREMENT PRIMARY KEY,
     label VARCHAR(255) NOT NULL,
     UNIQUE (label)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE Facts (
     fact_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,7 +30,7 @@ CREATE TABLE Facts (
     FOREIGN KEY (start_concept_id) REFERENCES Concepts(concept_id),
     FOREIGN KEY (relation_id) REFERENCES Relations(relation_id),
     FOREIGN KEY (end_concept_id) REFERENCES Concepts(concept_id)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE Users (
    user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,7 +38,7 @@ CREATE TABLE Users (
    password VARCHAR(255) NOT NULL,
    highscore_who INT DEFAULT 0,
    highscore_related INT DEFAULT 0
-);
+) ENGINE=InnoDB;
 
 INSERT INTO Users (username, password) VALUES 
     ('test', '123'),
