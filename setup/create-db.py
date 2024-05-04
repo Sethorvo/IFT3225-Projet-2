@@ -103,17 +103,6 @@ def runSetupQueries(connection):
 
             cursor.execute(statement)
             connection.commit()
-
-        proceduresDirectory = Path(__file__).parent / "sqlProcedures"
-
-        for procedureFilePath in proceduresDirectory.glob("*.sql"):
-
-            sqlProcedureFile = open(procedureFilePath, "r")
-            sqlProcedureStatement = sqlProcedureFile.read()
-            sqlProcedureFile.close()
-
-            cursor.execute(sqlProcedureStatement)
-            connection.commit()
         
         cursor.close()
 
