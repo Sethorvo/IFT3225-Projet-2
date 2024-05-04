@@ -47,6 +47,7 @@ $(document).ready(function() {
         }
         var loginButton = $("#login-button").clone(true);
         var logoutButton = $("#logout-button").detach();
+        //var gamesCard = $("#games-container").detach();
 
         this.use('Template');
         this.use(PartLoader, "#main", ["header", "main", "footer"]);
@@ -562,6 +563,7 @@ $(document).ready(function() {
                     app.setLocation('#/help');
                     $("#login-button").remove();
                     $("#mainNav").append(logoutButton);
+                    //$("#help").prepend(gamesCard);
                     
 
                 } else {
