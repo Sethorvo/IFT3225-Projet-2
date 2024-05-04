@@ -19,14 +19,14 @@ CREATE TABLE Relations (
 ) ENGINE=InnoDB;
 
 CREATE TABLE Facts (
-    fact_id INT AUTO_INCREMENT PRIMARY KEY,
     start_concept_id INT NOT NULL,
     relation_id INT NOT NULL,
     end_concept_id INT NOT NULL,
 
     FOREIGN KEY (start_concept_id) REFERENCES Concepts(concept_id),
     FOREIGN KEY (relation_id) REFERENCES Relations(relation_id),
-    FOREIGN KEY (end_concept_id) REFERENCES Concepts(concept_id)
+    FOREIGN KEY (end_concept_id) REFERENCES Concepts(concept_id),
+    CONSTRAINT PK_Facts PRIMARY KEY (start_concept_id, relation_id, end_concept_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE Users (
