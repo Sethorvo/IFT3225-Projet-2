@@ -22,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if (isset($_POST["newHighscore"]) and isset($_POST["gameName"])) {
 
+    $user_id = 1;
+
     $newHighscore = $_POST["newHighscore"];
     $gameName = $_POST["gameName"];
 
@@ -30,15 +32,15 @@ if (isset($_POST["newHighscore"]) and isset($_POST["gameName"])) {
         $fieldName = ($gameName === "guessWho") ? "highscore_who" : "highscore_related";
 
         $stmt = $conn->prepare("SELECT ".$fieldName." AS highscore FROM Users WHERE user_id = ?");
-        $stmt->bind_params("i", $user_id);
+        $stmt->bind_param("i", $user_id);
         $stmt->execute(); 
         
         $currentHighscore = $stmt->get_result()->fetch_assoc()["highscore"];
 
         if ($currentHighscore < $newHighscore) {
 
-            $stmt = $conn->prepare("UPDATE users SET ".$fieldName." = ? WHERE user_id = ?;")
-            $stmt->bind_params("ii", $newHighscore, $user_id);
+            $stmt = $conn->prepare("UPDATE users SET ".$fieldName." = ? WHERE user_id = ?;");
+            $stmt->bind_param("ii", $newHighscore, $user_id);
             $stmt->execute(); 
 
         }
