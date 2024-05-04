@@ -29,6 +29,5 @@ foreach ($queries as $query) {
     }
 }
 
-$conn->close();
 echo json_encode($results);
 

@@ -56,5 +56,4 @@ else {
         echo json_encode(['success' => false, 'message' => 'Invalid username or password']);
     }
 }
-$conn->close();
 
