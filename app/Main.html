@@ -57,7 +57,7 @@
                         <div class="col-sm-5">
                             <input type="number" class="form-control" id="game-1-hint" placeholder="10">
                         </div>
-                        <button id="submit-game-who" type="submit" class="btn btn-success btn-lg" href="#">Jouer</button>
+                        <button type="submit" class="btn btn-success btn-lg" href="#">Jouer</button>
                     </div>
                     </form>
     
@@ -66,7 +66,7 @@
                     <div class="form-group row">
                         <label for="jeu-2-time" class="col-sm-5 col-form-label">Temps (s):</label>
                         <div class="col-sm-5">
-                            <input type="text" class="form-control" id="jeu-2-time" placeholder="60">
+                            <input type="number" class="form-control" id="game-2-time" placeholder="60">
                         </div>
                         <button type="submit" class="btn btn-success btn-lg" href="#">Jouer</button>
                     </div>
@@ -159,6 +159,7 @@
                 </div>
             </div>
         </div>
+
         <div id="stats-container">
             <h1>Statistiques de la BD</h1>
             <ul id="stats">
@@ -168,19 +169,20 @@
                 <li>Nombre de users: <span id="users-count">Loading...</span></li>
             </ul>
         </div>
-        <div id="guess-who-board">
-            <div id="guess-who-board-header">
+
+        <div id="guess-who-board" class="game-board">
+            <div id="guess-who-board-header" class="game-board-header">
                 <div></div>
                 <h1>Jeu "Qui-suis-je"</h1>
                 <p>Record : <span></span></p>
             </div>
-            <div id="guess-who-board-timer">
+            <div id="guess-who-board-timer" class="timer">
                 <p>Temps restant</p>
-                <div class="timer"><div></div></div>
+                <div><div></div></div>
             </div>
             <p id="guess-who-board-hint">Nouvel indice dans : <span id="guess-who-board-hint-timer"></span>s</p>
-            <form id="guess-who-board-form">
-                <input type="text" autocomplete="off" id="guess-who-board-textinput" placeholder="Réponse">
+            <form id="guess-who-board-form" class="game-board-form">
+                <input type="text" autocomplete="off" placeholder="Réponse">
                 <button type="submit" class="btn btn-success btn-lg">Valider</button>
             </form>
 
@@ -195,6 +197,50 @@
                 <tbody>
                 </tbody>
             </table>
+        </div>
+
+        <div id="related-board" class="game-board">
+
+            <div id="related-board-header" class="game-board-header">
+                <div></div>
+                <h1>Jeu "Relations"</h1>
+                <p>Record : <span></span></p>
+            </div>
+
+            <div id="related-board-timer" class="timer">
+                <p>Temps restant</p>
+                <div><div></div></div>
+            </div>
+
+            <h2>Concept : <span></span></h2>
+
+            <form id="related-board-form" class="game-board-form">
+                <input type="text" autocomplete="off" id="related-board-textinput" placeholder="Concepts" title="Vous pouvez mettre plusieurs concepts séparés par des virgules">
+                <button type="submit" class="btn btn-success btn-lg">Valider</button>
+            </form>
+
+            <div id="related-board-answers">
+                <table id="related-board-correct-answers" class="table table-bordered related-board-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Concepts justes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <table id="related-board-wrong-answers" class="table table-bordered related-board-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Concepts faux</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
 
         <div id="game-end-modal">

@@ -21,7 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 //if (session_status() === PHP_SESSION_ACTIVE) {
-if (true) {
+if (isset($_GET["gameName"])) {
+
+    $fieldName = $_GET["gameName"] === "guessWho" ? "highscore_who" : "highscore_related";
 
     //$user_id = $_SESSION["user_id"];
     $user_id = 1;
@@ -30,13 +32,13 @@ if (true) {
     $sqlConcept = "SELECT term, label, language FROM Concepts ORDER BY RAND() LIMIT 1;";
     $response = $conn->query($sqlConcept)->fetch_assoc();
 
-    $stmt = $conn->prepare("SELECT highscore_who FROM Users WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT ".$fieldName." FROM Users WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     
     $resultHighscore = $stmt->get_result()->fetch_assoc();
 
-    $response["highscore"] = $resultHighscore["highscore_who"];
+    $response["highscore"] = $resultHighscore[$fieldName];
     
     echo json_encode($response);
 

@@ -1,4 +1,6 @@
 
+var gameInterval;
+
 var PartLoader = function(app, elementSelector, socketList) {
 
     storedParts = [];
@@ -33,18 +35,90 @@ var PartLoader = function(app, elementSelector, socketList) {
 
         storedParts = [];
 
+        // Avoids having multiple intervals running when going back and forth in a game
+        clearInterval(gameInterval)
+
     });
 }
+
+const CONCEPTNET_LIMIT = 50;
+
+function browseConceptNetRelatedConcepts(url, concept, relatedConcepts, callback) {
+
+    $.get(url, function(queryData) {
+
+        var facts = []
+      
+        $.each(queryData.edges, function(_, obj) {
+
+            const startTerm = obj.start.term.match(/[^/]+$/)[0];
+            const endTerm = obj.end.term.match(/[^/]+$/)[0];
+        
+            let fact = {language: concept.language, rel : {relLabel: obj.rel.label}};
+            
+            if (startTerm === concept.term) {
+                fact.rel.start = startTerm;
+                fact.rel.end = {term: endTerm, label: obj.end.label};
+                relatedConcepts.add(obj.end.label);
+            }
+            else {
+                fact.rel.end = endTerm;
+                fact.rel.start = {term: startTerm, label: obj.start.label};
+                relatedConcepts.add(obj.start.label);
+            }
+
+            facts.push(fact);
+
+        });
+
+        $.post("submitNewFacts.php", {facts: facts}).always(function(d) {
+            console.log(d)
+        });
+
+        // Recursive call handling
+        if (queryData.view && queryData.view.nextPage) {
+
+            url = new URL("https://api.conceptnet.io" + queryData.view.nextPage);
+            url.searchParams.set("limit", CONCEPTNET_LIMIT);
+            url = url.href;
+
+            browseConceptNetRelatedConcepts(url, concept, relatedConcepts, callback);
+        }
+        else {
+            callback(relatedConcepts);
+        }
+
+    })    
+
+}
+
+function getConceptNetRelatedConcepts(concept, callback) {
+
+    var startUrl = "https://api.conceptnet.io/query?node=/c/" + concept.language + "/" + concept.term + "&other=/c/" + concept.language + "&limit=" + CONCEPTNET_LIMIT;
+
+    browseConceptNetRelatedConcepts(startUrl, concept, new Set(), callback);
+
+}
+
+/*getConceptNetRelatedConcepts({term: "heart_failure", language: "en"}, function(relatedConcepts) {
+    console.log(relatedConcepts)
+})*/
+
+
 
 $(document).ready(function() {
 
     const app = Sammy('#main', function () {
 
-        var app = this
+        var app = this;
+
         var whoGameSettings = {
             defaultTime: 60,
             defaultHints: 10
-        }
+        };
+
+        var relationGameDefaultTime = 60;
+
         var loginButton = $("#login-button").clone(true);
         var logoutButton = $("#logout-button").detach();
         //var gamesCard = $("#games-container").detach();
@@ -243,83 +317,24 @@ $(document).ready(function() {
             this.loadPart("mainHeader", "header");
             this.loadPart("guess-who-board", "main");
 
-            $.get("getRandomConcept.php", function(data) {
+            function browseConceptNetHints(url, hints, quantity, concept, callback) {
 
-                // random concept informations
-                const term = data.term;
-                const label = data.label;
-                const language = data.language;
-
-                /*const term = "romanciers";
-                const language = "fr";*/
-
-                // Disable the form inputs until the game is fully loaded
-                $("#guess-who-board-form *").prop("disabled", true);
-                var hasFullyLoaded = false;
-
-                $("#guess-who-board-header > p > span").text(data.highscore);
-
-                var remainingHints = context.params.temps / context.params.indice;
-
-                var hints = [];
-                var hintsAlreadyLoaded = new Set();
-
-                // length of the hints variable when a new load of hints is needed
-                var hintsRefreshLength = Math.ceil(10 / context.params.indice);
-
-                // number of hints per GET request to the ceonceptnet API
-                var hintsPerLoad = Math.ceil(30 / context.params.indice);
-
-                // interval-related vars
-                var interval;
-                var timeRemaining = context.params.temps * 1000;
-
-                function calculateQueryLimit() {
-                    return remainingHints > hintsPerLoad ? hintsPerLoad : remainingHints;
-                }
-
-                // regex from https://stackoverflow.com/questions/441018/replacing-spaces-with-underscores-in-javascript
-                var nextAPIQuery = "https://api.conceptnet.io/query?node=/c/" + language + "/" + term + "&other=/c/" + language + "&limit=" + calculateQueryLimit();
-
-                console.log("Concept : " + term);
-                console.log(nextAPIQuery);
-
-                // Loads & start the game
-                getNewHints();
-
-                function prepareNextAPIQuery(queryData) {
-
-                    if (queryData.view && queryData.view.nextPage) {
-                        nextAPIQuery = new URL("https://api.conceptnet.io" + queryData.view.nextPage);
-                        nextAPIQuery.searchParams.set("limit", calculateQueryLimit());
-                        nextAPIQuery = nextAPIQuery.href;
-                    }
-                    else {
-                        nextAPIQuery = false;
-                    }
-
-                }
-
-                function isNewRequestNeeded() {
-                    return (nextAPIQuery                        // Make sure there is still a next page
-                        && hints.length <= hintsRefreshLength   // Anticipate API response time
-                        && hints.length < remainingHints);      // Only load if necessary
-                }
-
-                function loadHints(queryData) {
-
+                $.get(url, function(queryData) {
+            
+                    quantity -= CONCEPTNET_LIMIT;
+            
                     var facts = []
-
+                  
                     $.each(queryData.edges, function(_, obj) {
-
+            
                         const startTerm = obj.start.term.match(/[^/]+$/)[0];
                         const endTerm = obj.end.term.match(/[^/]+$/)[0];
-
-                        let fact = {language: language, rel : {relLabel: obj.rel.label}}
-
+                    
+                        let fact = {language: concept.language, rel : {relLabel: obj.rel.label}};
+                    
                         let newHint;
                         
-                        if (startTerm === term) {
+                        if (startTerm === concept.term) {
                             newHint = "??? " + obj.rel.label + " " + obj.end.label;
                             fact.rel.start = startTerm;
                             fact.rel.end = {term: endTerm, label: obj.end.label};
@@ -329,185 +344,208 @@ $(document).ready(function() {
                             fact.rel.end = endTerm;
                             fact.rel.start = {term: startTerm, label: obj.start.label};
                         }
-
+            
+                        hints.push(newHint);
                         facts.push(fact);
-
-                        if (!hintsAlreadyLoaded.has(newHint)) {
-
-                            hints.push(newHint);
-                            hintsAlreadyLoaded.add(newHint)
-
-                        }
-
-                    })
-
-                    // Submit new facts
+            
+                    });
+            
                     $.post("submitNewFacts.php", {facts: facts});
+            
+                    // Recursive call handling
+                    if (queryData.view && queryData.view.nextPage && quantity > 0) {
+            
+                        url = new URL("https://api.conceptnet.io" + queryData.view.nextPage);
+                        url.searchParams.set("limit", Math.min(quantity, CONCEPTNET_LIMIT));
+                        url = url.href;
+            
+                        browseConceptNetHints(url, hints, quantity, concept, callback);
+                    }
+                    else {
+                        callback(hints);
+                    }
+            
+                })
+            
+            }
+            
+            function getConceptNetHints(concept, quantity, callback) {
+            
+                var startUrl = "https://api.conceptnet.io/query?node=/c/" + concept.language + "/" + concept.term + "&other=/c/" + concept.language + "&limit=" + Math.min(quantity, CONCEPTNET_LIMIT);
+            
+                browseConceptNetHints(startUrl, [], 15, concept, callback);
+            
+            }
 
-                }
+            // Disable the form inputs until the game is fully loaded
+            $("#guess-who-board-form button, #guess-who-board-form input").prop("disabled", true);
 
-                function getNewHints() {
+            // Variables sanity check
+            var timeParam = context.params.temps
+            if (typeof(timeParam) !== "number" || timeParam < 1) {
+                timeParam = whoGameSettings.defaultTime;
+            }
 
-                    if (isNewRequestNeeded()) {
+            var hintParam = context.params.indice
+            if (typeof(hintParam) !== "number" || hintParam < 1) {
+                hintParam = whoGameSettings.defaultHints;
+            }
 
-                        const nextAPIQuerySave = nextAPIQuery;
-                        nextAPIQuery = false;   // prevent any other attempt to get new hints while the next request has not finished
-                        
-                        $.get(nextAPIQuerySave, function(queryData) {
+            $.get("getStartGameInfos.php", {gameName: "guessWho"}).done( function(data) {
 
-                            loadHints(queryData);
-                            prepareNextAPIQuery(queryData);
+                // random concept informations
+                const term = data.term;
+                const label = data.label;
+                const language = data.language;
+                const highscore = data.highscore
 
-                            if (!isNewRequestNeeded()) {  // This will run when the recursive calls are completed
+                console.log("Concept : " + term);
 
-                                if (!hasFullyLoaded) {  // This will be run only once after the first hints are loaded
-                                    hasFullyLoaded = true;
-                                    // re-enable the form inputs
-                                    $("#guess-who-board-form *").prop("disabled", false);
-                                    $("#guess-who-board-form > input").focus();
-                                    startTimer();
-                                }
+                var totalHints = timeParam / hintParam;
 
+                getConceptNetHints({term: term, language: language}, totalHints, function(hints) {
+
+                    // Update highscore on UI
+                    $("#guess-who-board-header > p > span").text(highscore);
+
+                    // Re enable form inputs
+                    $("#guess-who-board-form > input, #guess-who-board-form > button").prop("disabled", false)
+
+                    var timeRemaining = timeParam * 1000;
+
+                    startTimer()
+
+                    function endGame(isWon) {
+
+                        clearInterval(gameInterval);
+                        context.loadPart("game-end-modal", "main")
+                        $("#game-end-modal-btn-restart").focus()
+    
+                        if (isWon) {
+                            $("#game-end-modal > div > h2").text("Bravo, vous avez gagné !");
+    
+                            const timeRatio = timeParam / hintParam
+                            const score = Math.ceil(timeRatio) - (timeRatio - hints.length)
+    
+                            let pTag = $("#game-end-modal > div > p");
+    
+                            pTag.text("Votre score est de " + score);
+                            
+                            if (score > highscore) {
+                                $("<p>Vous avez battu votre ancien record (" + highscore + ") !</p>").insertAfter(pTag);
+    
+                                $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"});
                             }
-                            // Recursively try to GET new informations. It allows to always have the hintsPerLoad (or remainingHints) even
-                            // When there is duplicated relations
-                            else if (isNewRequestNeeded()) {
-                                getNewHints();
-                            }
-
+    
+                        }
+                        else {
+    
+                            $("#game-end-modal > div > h2").text("Dommage, vous avez perdu :(");
+                            $("#game-end-modal > div > p").text("Le concept à deviner était : " + label)
+    
+                        }
+    
+                        $("#game-end-modal-btn-menu").click(function() {
+    
+                            context.redirect("#/help");
+    
                         });
-
+    
+                        $("#game-end-modal-btn-restart").click(function() {
+    
+                            app.refresh();
+    
+                        });
+    
                     }
 
-                }
+                    $("#guess-who-board-form").submit(function(event) {
 
-                function endGame(isWon) {
-
-                    clearInterval(interval);
-                    context.loadPart("game-end-modal", "main")
-                    $("#game-end-modal-btn-restart").focus()
-
-                    if (isWon) {
-                        $("#game-end-modal > div > h2").text("Bravo, vous avez gagné !");
-
-                        const timeRatio = context.params.temps / context.params.indice
-                        const score = Math.ceil(timeRatio) - (timeRatio - remainingHints)
-
-                        let pTag = $("#game-end-modal > div > p");
-
-                        pTag.text("Votre score est de " + score);
-                        
-                        if (score > data.highscore) {
-                            $("<p>Vous avez battu votre ancien record (" + data.highscore + ") !</p>").insertAfter(pTag);
-
-                            $.post("updateHighscore.php", {newHighscore: score, gameName: "guessWho"});
+                        const input = $("#guess-who-board-form > input").val().toLowerCase();
+        
+                        if (input === label.toLowerCase()) {
+                            endGame(true)
                         }
+                        else {
+                            let $textInput = $("#guess-who-board-form > input");
+    
+                            $textInput.effect("shake", {direction: "left", distance: 12, times: 2}, 400);
+                            $textInput.addClass("input-error");
 
-                    }
-                    else {
+                            let $inputs = $("#guess-who-board-form > input, #guess-who-board-form > button");
+                            $inputs.prop("disabled", true);
+    
+                            setTimeout(function() {
+    
+                                $inputs.prop("disabled", false);
 
-                        $("#game-end-modal > div > h2").text("Dommage, vous avez perdu :(");
-                        $("#game-end-modal > div > p").text("Le concept à deviner était : " + label)
-
-                    }
-
-                    $("#game-end-modal-btn-menu").click(function() {
-
-                        context.redirect("#/help");
-
+                                $textInput.removeClass("input-error");
+                                $textInput.focus();
+                                $textInput.val("");
+    
+                            }, 450)
+                        }
+        
+                        return false;
+        
                     });
 
-                    $("#game-end-modal-btn-restart").click(function() {
+                    function startTimer() {
 
-                        app.refresh();
-
-                    });
-
-                }
-
-                $("#guess-who-board-form").submit(function(event) {
-
-                    const input = $("#guess-who-board-form > input").val().toLowerCase();
+                        // interval-related vars
+                        const startTime = timeRemaining;
+                        const hintTimeInterval = hintParam * 1000;
     
-                    if (input === label.toLowerCase()) {
-                        endGame(true)
-                    }
-                    else {
-                        $input = $("#guess-who-board-form > input");
+                        var timerBarTag = $("#guess-who-board-timer > div > div");
+                        var timeRemainingTag = $("#guess-who-board-hint > span");
 
-                        $input.effect("shake", {direction: "left", distance: 12, times: 2}, 400);
-                        $input.addClass("input-error");
-                        $("#guess-who-board-form > *").prop("disabled", true);
-
-                        setTimeout(function() {
-
-                            $("#guess-who-board-form > *").prop("disabled", false);
-                            $input.removeClass("input-error");
-                            $input.focus();
-                            $input.val("");
-
-                        }, 450)
-                    }
-    
-                    return false;
-    
-                });
-
-                function startTimer() {
-
-                    // interval-related vars
-                    const startTime = timeRemaining;
-                    const hintTimeInterval = context.params.indice * 1000;
-
-                    timerBarTag = $("#guess-who-board-timer > div > div")
-    
-                    interval = setInterval(() => {
+                        var noMoreHints = false;
         
-                        // handle hints
-                        if ((timeRemaining % 1000) === 0) {
-    
-                            const timeBeforeNextHint = ((timeRemaining-1000) % hintTimeInterval)/1000 + 1
+                        gameInterval = setInterval(() => {
+            
+                            // handle hints
+                            if ((timeRemaining % 1000) === 0) {
         
-                            $("#guess-who-board-hint > span").text(timeBeforeNextHint)
-
-                            if (hints.length === 0) {
+                                const timeBeforeNextHint = ((timeRemaining-1000) % hintTimeInterval)/1000 + 1
+            
+                                timeRemainingTag.text(timeBeforeNextHint)
+    
+                                if (!noMoreHints && hints.length === 0) {
+                                    $("#guess-who-board-hint").text("Il n'y a plus d'indices");
+                                    noMoreHints = true;
+                                }
+                                else if (timeBeforeNextHint === hintParam) {
+        
+                                    let newHint = $("<tr></tr>")
+                                    const number = $("#guess-who-board > table > tbody > tr").length + 1
+                                    newHint.append($("<td>" + number + "</td>"))
+                                    newHint.append($("<td>" + hints.pop() + "</td>"))
+                                    $("#guess-who-board > table > tbody").prepend(newHint) 
+        
+                                }
+        
+                            }
+            
+                            timeRemaining -= 10;
+            
+                            // update timer CSS. Took from our previous homework (project1)
+                            let percent = timeRemaining * 100 / startTime
+                            timerBarTag.css("width", "calc(" + percent + "% - 4px)")
+            
+                            // end of timer
+                            if (timeRemaining < 0) {
+            
+                                clearInterval(gameInterval);
                                 $("#guess-who-board-hint").text("Il n'y a plus d'indices");
+                                endGame(false);
+            
                             }
-                            else if (timeBeforeNextHint == context.params.indice) {
-                                
+            
+                        }, 10);
     
-                                remainingHints--;
-    
-                                let newHint = $("<tr></tr>")
-                                const number = $("#guess-who-board > table > tbody > tr").length + 1
-                                newHint.append($("<td>" + number + "</td>"))
-                                newHint.append($("<td>" + hints.pop() + "</td>"))
-                                $("#guess-who-board > table > tbody").prepend(newHint) 
-    
-                                getNewHints()
-    
-                            }
-    
-                        }
-        
-                        timeRemaining -= 10;
-        
-                        // update timer CSS. Took from our previous homework (project1)
-                        let percent = timeRemaining * 100 / startTime
-                        timerBarTag.css("width", "calc(" + percent + "% - 4px)")
-        
-                        // end of timer
-                        if (timeRemaining < 0) {
-        
-                            clearInterval(interval);
-                            $("#guess-who-board-hint").text("Il n'y a plus d'indices");
-                            endGame(false);
-        
-                        }
-        
-                    }, 10);
+                    }
 
-                }
+                })
 
             })
         });
@@ -523,6 +561,163 @@ $(document).ready(function() {
             this.redirect("#/jeux/quisuisje/" + whoGameSettings.defaultTime + "/" + whoGameSettings.defaultHints);
 
         });
+
+        this.get("#/jeux/related/:temps", function(context) {
+
+            this.loadPart("mainHeader", "header");
+            this.loadPart("related-board", "main");
+
+            // Disable the inputs during the loading
+            $("#related-board-form input, #related-board-form button").prop("disabled", true);
+
+            // Sanitize params
+            var timeParam = Number(context.params.temps);
+            if (timeParam < 1) {
+                timeParam = relationGameDefaultTime;
+            }
+
+            $.get("getStartGameInfos.php", {gameName: "related"}).done( function(data) {
+
+                // random concept informations
+                const term = data.term;
+                const label = data.label;
+                const language = data.language;
+                const highscore = data.highscore;
+
+                // Hide the table containing the results
+                $("#related-board-answers").hide();
+
+                getConceptNetRelatedConcepts({term: term, language: language}, function(relatedConcepts) {
+
+                    console.log(relatedConcepts)
+                    var correctSubmissions = new Set();
+                    var wrongSubmissions = new Set();
+
+                    var timeRemaining = timeParam * 1000;
+                    
+                    // Enables the input when finished loading
+                    $("#related-board-form input, #related-board-form button").prop("disabled", false);
+
+                    // Set UI game informations
+                    $("#related-board-header > p > span").text(highscore);
+                    $("#related-board > h2 > span").text(label);
+
+                    startTimer();
+
+                    $("#related-board-form").submit(function(event) {
+
+                        if (timeRemaining <= 0) {   // after the game has ended
+
+                            app.refresh();
+
+                        }
+                        else {
+
+                            $textinput = $("#related-board-textinput")
+
+                            submittedConcepts = $textinput.val();
+    
+                            // clear the input
+                            $textinput.val("");
+    
+                            var $correctAnswersTag = $("#related-board-correct-answers > tbody");
+                            var $wrongAnswersTag = $("#related-board-wrong-answers > tbody");
+        
+                            $.each(submittedConcepts.split(","), function(_, concept) {
+        
+                                concept = concept.trim();
+    
+                                if (!correctSubmissions.has(concept) && !wrongSubmissions.has(concept)) {
+    
+                                    let newAnswer = $("<tr></tr>")
+                                    newAnswer.append($("<td>" + concept + "</td>"))
+    
+                                    if (relatedConcepts.has(concept)) {
+    
+                                        relatedConcepts.delete(concept);
+                                        correctSubmissions.add(concept);
+                                        $correctAnswersTag.prepend(newAnswer)
+                                        
+                                    }
+                                    else {
+    
+                                        wrongSubmissions.add(concept);
+                                        $wrongAnswersTag.prepend(newAnswer)
+    
+                                    }
+    
+                                }
+    
+                                
+        
+                            })
+
+                        }
+
+                        return false;
+
+                    })
+
+                    function endGame() {
+
+                        $("#related-board-form > input").hide();
+                        $("#related-board-form > button").text("Rejouer");
+
+                        // Show the results
+                        $("#related-board-answers").show();
+
+                        $htmlToAdd = $("<h3>Fin du jeu ! Votre score est de " + correctSubmissions.size + "</h3>");
+                        $htmlToAdd.insertBefore($("#related-board-form"))
+
+                        if (correctSubmissions.size > highscore) {
+
+                            console.log("New highscore !")
+                            $.post("updateHighscore.php", {gameName: "related", newHighscore: correctSubmissions.size})
+
+                        }
+
+                    }
+
+                    function startTimer() {
+
+                        const startTime = timeParam * 1000;
+
+                        var timerBarTag = $("#related-board-timer > div > div")
+    
+                        gameInterval = setInterval(() => {
+            
+                            timeRemaining -= 10;
+            
+                            // update the timer CSS. Took from our previous homework (project1)
+                            let percent = timeRemaining * 100 / startTime
+                            timerBarTag.css("width", "calc(" + percent + "% - 4px)")
+            
+                            // end of timer
+                            if (timeRemaining < 0) {
+            
+                                clearInterval(gameInterval);
+                                endGame();
+            
+                            }
+            
+                        }, 10);
+    
+                    }
+
+                })
+
+            });
+
+        });
+
+        this.get("#/jeux/related", function(context) {
+
+            this.redirect("#/jeux/related/" + relationGameDefaultTime);
+
+        });
+
+
+
         $("#game-who-form").submit(function(event) {
 
             let time = $("#game-1-time").val();
@@ -531,6 +726,16 @@ $(document).ready(function() {
             hints = hints !== "" ? hints : whoGameSettings.defaultHints;
 
             app.setLocation("#/jeux/quisuisje/" + time + "/" + hints);
+
+            return false;
+        });
+
+        $("#game-rel-form").submit(function(event) {
+
+            let time = $("#game-2-time").val();
+            time = time !== "" ? time : relationGameDefaultTime;
+
+            app.setLocation("#/jeux/related/" + time);
 
             return false;
         });

@@ -56,39 +56,47 @@ input[type="submit"] {
     cursor: pointer;
 }
 
-/* "Guess who" game related */
-#guess-who-board {
+/* Game board general styling */
+.game-board {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 20px;
 }
 
-#guess-who-board p, #guess-who-board h2 {
+.game-board p, .game-board h2 {
     margin:0;
 }
 
-#guess-who-board-header {
+.input-error {
+    border-color:#dc3545;
+}
+
+/* Game board header */
+
+.game-board-header {
     display:flex;
     width:100%;
     align-items: center;
     justify-content: center;
 }
 
-#guess-who-board-header > p {
+.game-board-header > p {
 
     width:150px;
     margin-left: auto;
     margin-right:20%;
 }
 
-#guess-who-board-header > div {
+.game-board-header > div {
     width:150px;
     margin-right:auto;
     margin-left:20%;
 }
 
-#guess-who-board-timer {
+/* Game timer related */
+
+.timer {
     display:flex;
     flex-direction: column;
     align-items: center;
@@ -96,11 +104,11 @@ input[type="submit"] {
     width:500px;
 }
 
-#guess-who-board-timer > p {
+.timer > p {
     width:fit-content;
 }
 
-.timer {
+.timer > div {
     display:flex;
     flex-direction: column;
     align-items: flex-end;
@@ -112,7 +120,7 @@ input[type="submit"] {
     border-radius: 10px;
 }
 
-.timer > div {
+.timer > div > div {
 
     background-color: #008000;
     width: calc(100% - 4px);
@@ -122,25 +130,17 @@ input[type="submit"] {
 
 }
 
-#guess-who-board > form {
+/* Game boards form */
+
+.game-board-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 10px;
-}
-
-#guess-who-board-form {
     width:15%;
 }
 
-.input-error {
-    border-color:#dc3545;
-}
-
-#guess-who-board-textinput {
-    width:100%;
-    margin:0;
-}
+/* "Guess who" game related */
 
 #guess-who-board > table {
     text-align: center;
@@ -153,6 +153,20 @@ input[type="submit"] {
 
 #guess-who-board > table > tbody > tr:first-child {
     --bs-table-bg:rgb(194, 240, 255);
+}
+
+/* Related game related */
+
+#related-board-answers {
+    display:flex;
+    column-gap: 50px;
+}
+
+#related-board > div > table {
+
+    text-align: center;
+    width:400px;
+
 }
 
 /* From https://www.w3schools.com/howto/howto_css_modals.asp */
