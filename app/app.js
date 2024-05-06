@@ -71,9 +71,7 @@ function browseConceptNetRelatedConcepts(url, concept, relatedConcepts, callback
 
         });
 
-        $.post("submitNewFacts.php", {facts: facts}).always(function(d) {
-            console.log(d)
-        });
+        $.post("submitNewFacts.php", {facts: facts});
 
         // Recursive call handling
         if (queryData.view && queryData.view.nextPage) {
@@ -121,7 +119,7 @@ $(document).ready(function() {
 
         var loginButton = $("#login-button").clone(true);
         var logoutButton = $("#logout-button").detach();
-        //var gamesCard = $("#games-container").detach();
+        var gamesCard = $("#games-container").detach();
 
         this.use('Template');
         this.use(PartLoader, "#main", ["header", "main", "footer"]);
@@ -141,12 +139,11 @@ $(document).ready(function() {
         });
 
         this.get('#/logout', function(context) {
-            fetch('http://localhost/app/logout.php', {
+            fetch('logout.php', {
                 method: 'POST'
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 if (data.success) {
                     alert('Logout Successful!');
                     this.redirect("#/help")
@@ -167,7 +164,7 @@ $(document).ready(function() {
             this.loadPart("mainHeader", "header");
             this.loadPart("stats-container", "main")
             $.ajax({
-                url: 'http://localhost/app/stats.php',
+                url: 'stats.php',
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -195,7 +192,7 @@ $(document).ready(function() {
                 "processing": true,
                 "serverSide": false,
                 "ajax": {
-                    "url": "http://localhost/app/getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
+                    "url": "getConcepts.php", //localhost:port lorsque machine DIRO (port qui a ete choisi lors du lancement de index.php)
                     "type": "GET",
                     "dataSrc": ""
                 },
@@ -399,8 +396,6 @@ $(document).ready(function() {
                 const language = data.language;
                 const highscore = data.highscore
 
-                console.log("Concept : " + term);
-
                 var totalHints = timeParam / hintParam;
 
                 getConceptNetHints({term: term, language: language}, totalHints, function(hints) {
@@ -589,7 +584,6 @@ $(document).ready(function() {
 
                 getConceptNetRelatedConcepts({term: term, language: language}, function(relatedConcepts) {
 
-                    console.log(relatedConcepts)
                     var correctSubmissions = new Set();
                     var wrongSubmissions = new Set();
 
@@ -671,7 +665,6 @@ $(document).ready(function() {
 
                         if (correctSubmissions.size > highscore) {
 
-                            console.log("New highscore !")
                             $.post("updateHighscore.php", {gameName: "related", newHighscore: correctSubmissions.size})
 
                         }
@@ -768,13 +761,12 @@ $(document).ready(function() {
             event.preventDefault();
             const formData = new FormData(this);
 
-            fetch('http://localhost/app/login.php', {
+            fetch('login.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 if (data.success) {
                     alert('Login Successful!');
                     app.setLocation('#/help');
@@ -798,7 +790,7 @@ $(document).ready(function() {
 
     function saveDataToDatabase(data) {
         $.ajax({
-            url: 'http://localhost/app/db_feed.php',
+            url: 'db_feed.php',
             type: 'POST',
             data: JSON.stringify(data),
             contentType: 'application/json; charset=utf-8',
