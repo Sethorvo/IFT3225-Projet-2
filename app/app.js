@@ -740,7 +740,7 @@ $(document).ready(function() {
             const relation = $('#rel-val').val().trim();
             app.setLocation('#/relation/' + encodeURIComponent(relation)
                 + '/from/' + encodeURIComponent(langue) + "/" + encodeURIComponent(concept));
-    
+            return false;
         });
 
         $('#conc-form').submit(function(event) {
@@ -748,12 +748,14 @@ $(document).ready(function() {
             const langue = $('#conc-lang').val().trim().toLowerCase();
             const concept = $('#conc-val').val().trim().toLowerCase();
             app.setLocation('#/concept/' + encodeURIComponent(langue) + '/' + encodeURIComponent(concept));
+            return false;
         });
     
         $('#rel-simple-form').submit(function(event) {
             event.preventDefault();
             const relation = $('#rel-simple').val().trim();
             app.setLocation('#/relation/' + encodeURIComponent(relation));
+            return false;
         });
 
         $('#login-form').submit(function(event) {
@@ -782,6 +784,8 @@ $(document).ready(function() {
             .catch(error => {
                 console.error('Error:', error);
             });
+
+            return false;
 
         });
     });
